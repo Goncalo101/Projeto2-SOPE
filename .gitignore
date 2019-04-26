@@ -1,3 +1,7 @@
+# Ignore executables
+server
+user
+
 # Prerequisites
 *.d
 
