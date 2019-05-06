@@ -20,8 +20,18 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    //handles information from arguments to a struct
     Info info = addInfo(argv);
-    
+
+    //creates name of fifo to create to read message from server
+    char fifopath[USER_FIFO_PATH_LEN];
+    int pid = getpid();
+    strcat(fifopath, pid);
+
+    //creates fifo
+    mkfifo(fifopath, 0660);
+
+    //opens fifo to send message into
     int fd = open(SERVER_FIFO_PATH, O_WRONLY);
     if(fd == -1)
     {
