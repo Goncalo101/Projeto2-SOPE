@@ -13,8 +13,8 @@ typedef struct {
 
 } Info;
 
-Info* addInfo( char *argv[]);
-void printTest(Info *info);
+Info addInfo( char *argv[]);
+void printTest(Info info);
 
 
 #endif /* _INFO_H_ */

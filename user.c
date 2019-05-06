@@ -2,7 +2,8 @@
 #include "types.h"
 #include <fcntl.h>
 #include "info.h"
-
+#include <stdio.h>
+#include <stdlib.h>
 
 
 void processInformation(req_header_t *t)
@@ -19,16 +20,14 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    Info *info = addInfo(argv);
-    printTest(info);
-
-    /*
+    Info info = addInfo(argv);
+    
     int fd = open(SERVER_FIFO_PATH, O_WRONLY);
     if(fd == -1)
     {
         printf("No fifo open \n");
         exit(1);
     }
-*/
+
     return 0;
 }
