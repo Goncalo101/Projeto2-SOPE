@@ -7,16 +7,8 @@
 #include "constants.h"
 #include "types.h"
 #include "accounts.h"
+#include "communication.h"
 
-int readline(int fd, char *str)
-{
-    int n;
-    do
-    {
-        n = read(fd, str, 1);
-    } while (n > 0 && *str++ != '\0');
-    return (n > 0);
-}
 
 int main(int argc, char *argv[])
 {
@@ -27,42 +19,19 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    //create admin account
     create_account(argv[2], "test", 0);
 
     //TODO: add balconies
 
-    //create fifo to send information
+    //create fifo to send information (server)
     mkfifo(SERVER_FIFO_PATH, 0660);
 
-    //opens fifo
-    int fifo_server;
-    char str[100];
+    //reads from server(fifo) info send by user
+    read_fifo(SERVER_FIFO_PATH);
 
-    fifo_server = open(SERVER_FIFO_PATH, O_RDONLY);
-    while (fifo_server == -1)
-    {
-        sleep(1);
-    }
-
-    readline(fifo_server, str);
-        printf("%s\n", str);
-
-   /* char fifopid[USER_FIFO_PATH_LEN];
-    strcat(fifopid, USER_FIFO_PATH_PREFIX);
-    strcat(fifopid, "20000");*/
-
-    int fifo_answer = open(USER_FIFO_PATH_PREFIX, O_WRONLY);
-    while(fifo_answer ==-1)
-    {
-        printf("meias\n");
-    }
-
-
-    char message[100];
-    int messagelen;
-    sprintf(message, "Goodbye\n");
-    messagelen = strlen(message) + 1;
-    write(fifo_answer, message, messagelen);
+    //writes answer to user by answer (fifo)
+    write_fifo(USER_FIFO_PATH_PREFIX, "goodbye\n");
 
     return 0;
 }

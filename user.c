@@ -6,21 +6,13 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
+#include "communication.h"
+
 /*void processInformation(req_header_t *t)
 {
     t->pid = getpid();
 
 }*/
-
-int readline(int fd, char *str)
-{
-    int n;
-    do
-    {
-        n = read(fd, str, 1);
-    } while (n > 0 && *str++ != '\0');
-    return (n > 0);
-}
 
 int main(int argc, char *argv[])
 {
@@ -41,36 +33,14 @@ int main(int argc, char *argv[])
     strcat(fifopid, "20000");*/
 
 
-    //creates fifo
+    //creates fifo that will accomodate answer from server side (answer fifo)
     mkfifo(USER_FIFO_PATH_PREFIX, 0660);
 
-    //opens fifo to send message
-    int fifo_server = open(SERVER_FIFO_PATH, O_WRONLY);
-    if (fifo_server == -1)
-    {
-        printf("No fifo open \n");
-        exit(1);
-    }
+    //writes to server(fifo) the order
+    write_fifo(SERVER_FIFO_PATH, "hi bitch \n");
 
-    char message[100];
-    int messagelen;
-
-    sprintf(message, "Hello i am %d\n", getpid());
-    messagelen = strlen(message) + 1;
-    write(fifo_server, message, messagelen);
-
-    //opens fifo (created by him) to recive answer from server
-    char str[100];
-
-    int fifo_answer = open(USER_FIFO_PATH_PREFIX, O_RDONLY);
-
-    while (fifo_answer == -1)
-    {
-        sleep(1);
-    }
-
-    while (readline(fifo_answer, str))
-        printf("%s\n", str);
+    //opens answer(fifo) to recive answer from server
+    read_fifo(USER_FIFO_PATH_PREFIX);
 
     return 0;
 }
