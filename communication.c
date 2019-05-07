@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <unistd.h>
 
 int readline(int fd, char *str)
 {
@@ -43,7 +44,7 @@ void write_fifo(char *path, char *to_write)
         fifo = open(path, O_WRONLY);
     }
 
-    sprintf(message, to_write);
+    sprintf(message, to_write, "%s");
     messagelen = strlen(message) + 1;
     write(fifo, message, messagelen);
 }

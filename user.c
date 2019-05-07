@@ -1,18 +1,15 @@
-#include "constants.h"
-#include "types.h"
 #include <fcntl.h>
-#include "info.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <unistd.h>
+
 
 #include "communication.h"
-
-/*void processInformation(req_header_t *t)
-{
-    t->pid = getpid();
-
-}*/
+#include "serverfifoaux.h"
+#include "userflag.h"
+#include "constants.h"
+#include "types.h"
 
 int main(int argc, char *argv[])
 {
@@ -22,19 +19,12 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    //handles information from arguments to a struct
-    //Info info = addInfo(argv);
-
-    //creates name of fifo to create to read message from server
-    /*char fifopid[USER_FIFO_PATH_LEN];
-    //char *cpid;
-    //sprintf(cpid, "%d", getpid());
-    strcat(fifopid, USER_FIFO_PATH_PREFIX);
-    strcat(fifopid, "20000");*/
-
-
+    User_flag flag = addflag(argv);    
+    
+sleep(2);
     //creates fifo that will accomodate answer from server side (answer fifo)
-    mkfifo(USER_FIFO_PATH_PREFIX, 0660);
+    //TODO: add right name to fifo
+    mkfifo(USER_FIFO_PATH_PREFIX, 0660); 
 
     //writes to server(fifo) the order
     write_fifo(SERVER_FIFO_PATH, "hi bitch \n");

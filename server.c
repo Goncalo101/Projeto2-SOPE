@@ -3,11 +3,14 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <unistd.h>
+
 
 #include "constants.h"
 #include "types.h"
 #include "accounts.h"
 #include "communication.h"
+#include "sope.h"
 
 
 int main(int argc, char *argv[])
@@ -20,8 +23,10 @@ int main(int argc, char *argv[])
     }
 
     //create admin account
-    create_account(argv[2], "test", 0);
+    bank_account_t admin = create_account(argv[2], "test", 0);
+    show_bank_account(admin.account_id);
 
+    sleep(2);
     //TODO: add balconies
 
     //create fifo to send information (server)

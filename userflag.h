@@ -1,5 +1,5 @@
-#ifndef _INFO_H_
-#define _INFO_H_
+#ifndef _USERFLAG_H_
+#define _USERFLAG_H_
 
 #include <string.h>
 #include "constants.h"
@@ -11,10 +11,10 @@ typedef struct {
     int opnumber;
     char arguments[BUFFER_SIZE];
 
-} Info;
+} User_flag;
 
-Info addInfo( char *argv[]);
-void printTest(Info info);
+User_flag addflag( char *argv[]);
+void printTest(User_flag flag);
 
 
-#endif /* _INFO_H_ */
+#endif /* _USERFLAG_H_ */
