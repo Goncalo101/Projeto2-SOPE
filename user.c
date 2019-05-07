@@ -21,18 +21,15 @@ int main(int argc, char *argv[])
     User_flag flag = addflag(argv);
     tlv_request_t t = join_structs_to_send(flag);
 
-    sleep(2);
     //creates fifo that will accomodate answer from server side (answer fifo)
     //TODO: add right name to fifo
     mkfifo(USER_FIFO_PATH_PREFIX, 0660);
 
     //writes to server(fifo) the order
     write_fifo_server(SERVER_FIFO_PATH, &t);
-
-    printf("oi bitchs\n");
-
+    
     //opens answer(fifo) to recive answer from server
-    read_fifo_answer(USER_FIFO_PATH_PREFIX);
+    //read_fifo_answer(USER_FIFO_PATH_PREFIX);
 
     return 0;
 }

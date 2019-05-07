@@ -1,8 +1,8 @@
 CC=gcc
 CFLAGS = -Wall -Wextra -pedantic
-DEPS = constants.h types.h accounts.h sope.h userflag.h communication.h serverfifoaux.h
+DEPS = constants.h types.h accounts.h sope.h userflag.h communication.h serverfifoaux.h answerfifoaux.h
 COMN = log.o communication.o
-SRV = server.o accounts.o
+SRV = server.o accounts.o answerfifoaux.o
 USR = user.o userflag.o serverfifoaux.o
 
 all: user server

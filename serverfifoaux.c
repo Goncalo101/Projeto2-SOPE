@@ -3,20 +3,6 @@
 #include <stdio.h>
 
 
-int number_spaces_string(char *a)
-{
-    int spaces = 0;
-    for (int i = 0; a[i] != '\0'; i++)
-    {
-        if (a[i] == ' ')
-        {
-            spaces++;
-        }
-    }
-
-    return spaces;
-}
-
 void create_header_struct(User_flag flag, pid_t pid, req_header_t* t)
 {
     t->account_id = flag.id;
@@ -37,9 +23,9 @@ void create_new_account_struct(User_flag flag, req_create_account_t *create)
     create->balance = balance;
     strncpy(create->password, password, sizeof(create->password));
 
-    // printf("id %d \n", create.account_id);
-    // printf("balance %d \n", create.balance);
-    // printf("pass %s \n", create.password);
+    printf("id %d \n", create->account_id);
+    printf("balance %d \n", create->balance);
+    printf("pass %s \n", create->password);
 
 }
 
@@ -82,16 +68,21 @@ tlv_request_t join_structs_to_send(User_flag flag)
 
     create_header_struct(flag, getpid(),&header);
 
-    if(number_spaces_string(flag.arguments) >1)
+    if(flag.opnumber == 0)
     {
         create_new_account_struct(flag, &account);
         create_tlv_request_struct(&tlv,flag,NULL,&account,&header);
     }
-    else
+    else if(flag.opnumber == 2)
     {
         create_transfer_struct(flag, &transfer);
         create_tlv_request_struct(&tlv,flag,&transfer,NULL,&header);
     }
+    else
+    {
+        create_tlv_request_struct(&tlv,flag,NULL,NULL,&header);
+    }
+    
 
     return tlv;
 }
