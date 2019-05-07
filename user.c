@@ -27,10 +27,12 @@ int main(int argc, char *argv[])
     mkfifo(USER_FIFO_PATH_PREFIX, 0660);
 
     //writes to server(fifo) the order
-    write_fifo(SERVER_FIFO_PATH, "hi bitch \n");
+    write_fifo_server(SERVER_FIFO_PATH, &t);
+
+    printf("oi bitchs\n");
 
     //opens answer(fifo) to recive answer from server
-    read_fifo(USER_FIFO_PATH_PREFIX);
+    read_fifo_answer(USER_FIFO_PATH_PREFIX);
 
     return 0;
 }

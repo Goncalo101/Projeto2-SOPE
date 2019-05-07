@@ -33,10 +33,10 @@ int main(int argc, char *argv[])
     mkfifo(SERVER_FIFO_PATH, 0660);
 
     //reads from server(fifo) info send by user
-    read_fifo(SERVER_FIFO_PATH);
+    read_fifo_server(SERVER_FIFO_PATH);
 
     //writes answer to user by answer (fifo)
-    write_fifo(USER_FIFO_PATH_PREFIX, "goodbye\n");
+    write_fifo_answer(USER_FIFO_PATH_PREFIX, "goodbye\n");
 
     return 0;
 }

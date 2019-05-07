@@ -17,7 +17,7 @@ int readline(int fd, char *str)
     return (n > 0);
 }
 
-void read_fifo(char *path)
+void read_fifo_answer(char *path)
 {
     char str[100];
 
@@ -32,7 +32,45 @@ void read_fifo(char *path)
     printf("%s\n", str);
 }
 
-void write_fifo(char *path, char *to_write)
+void read_fifo_server(char *path)
+{
+    char str[100];
+    tlv_request_t *t;
+
+    int fifo = open(path, O_RDONLY);
+    while (fifo == -1)
+    {
+        sleep(1);
+        fifo = open(path, O_RDONLY);
+    }
+
+    read(fifo, t, sizeof(t));
+
+    printf("%d", t->length);
+
+    //readline(fifo, str);
+    //printf("%s\n", str);
+}
+
+void write_fifo_server(char *path, tlv_request_t *to_write)
+{
+    tlv_request_t *message;
+    int messagelen;
+
+    int fifo = open(path, O_WRONLY);
+    while (fifo == -1)
+    {
+        sleep(1);
+        fifo = open(path, O_WRONLY);
+    }
+
+    // sprintf(message, to_write, "%s");
+    // messagelen = strlen(message) + 1;
+    write(fifo, to_write, sizeof(to_write));
+}
+
+//TODO: update to right struct
+void write_fifo_answer(char *path, char *to_write)
 {
     char message[100];
     int messagelen;
