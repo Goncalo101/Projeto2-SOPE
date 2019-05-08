@@ -19,7 +19,7 @@
 
 void read_fifo_answer(char *path)
 {
-    tlv_reply_t *t;
+    tlv_reply_t t;
 
     int fifo = open(path, O_RDONLY);
     while (fifo == -1)
@@ -28,14 +28,14 @@ void read_fifo_answer(char *path)
         fifo = open(path, O_RDONLY);
     }
 
-    read(fifo, t, sizeof(t));
+    read(fifo, &t, sizeof(t));
 
-    printf("%d", t->type);
+    printf("%d", t.type);
 }
 
 void read_fifo_server(char *path)
 {
-    tlv_request_t *t;
+    tlv_request_t t;
 
     int fifo = open(path, O_RDONLY);
     while (fifo == -1)
@@ -44,7 +44,7 @@ void read_fifo_server(char *path)
         fifo = open(path, O_RDONLY);
     }
 
-    read(fifo, t, sizeof(t));
+    read(fifo, &t, sizeof(t));
 
     // printf("type: %d", t->value.create.account_id);
 
