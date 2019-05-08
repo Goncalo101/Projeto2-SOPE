@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
     }
 
     User_flag flag = addflag(argv);
+    printTest(flag);
     tlv_request_t t = join_structs_to_send(flag);
 
     //creates fifo that will accomodate answer from server side (answer fifo)
