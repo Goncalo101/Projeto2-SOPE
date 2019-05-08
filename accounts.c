@@ -3,8 +3,6 @@
 #include <string.h>
 #include <stdio.h>
 
-static uint32_t id = 0;
-
 bank_account_t accounts[MAX_BANK_ACCOUNTS];
 int account_ids[MAX_BANK_ACCOUNTS];
 
@@ -14,20 +12,27 @@ void insert_account(bank_account_t account)
     account_ids[account.account_id] = 1;
 }
 
-//TODO: add possibility to be differrent id and not incremented automatically
+//TODO: add possibility to be differrent id and not incremented automatically--done
 //Need to verify if it was already used
-bank_account_t create_account(char *password, char *salt, int balance) 
+ret_code_t create_account(char *password, char *salt, int balance, int id) 
 {
-
     bank_account_t account;
-    account.account_id = id++;
+
+    if(account_ids[id] == 1)
+        return RC_ID_IN_USE;
+
+    account.account_id = id;
     account.balance = balance;
     strcpy(account.salt, salt);
     strcpy(account.hash, password);
 
     insert_account(account);
 
-    return account;
+    //RC_OTHER
+    //RC_OP_NALLOW
+
+    //add log here
+    return RC_OK;
 }
 
 ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t value) 

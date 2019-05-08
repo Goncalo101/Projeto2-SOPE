@@ -18,7 +18,13 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    User_flag flag = addflag(argv);
+    User_flag flag;
+    if(addflag(argv, &flag) != 0)
+    {
+        printf("wrong arguments\n");
+        exit(0);
+    }
+
     printTest(flag);
     tlv_request_t t = join_structs_to_send(flag);
 
@@ -30,7 +36,7 @@ int main(int argc, char *argv[])
     write_fifo_server(SERVER_FIFO_PATH, &t);
     
     //opens answer(fifo) to recive answer from server
-    //read_fifo_answer(USER_FIFO_PATH_PREFIX);
+    read_fifo_answer(USER_FIFO_PATH_PREFIX);
 
     return 0;
 }

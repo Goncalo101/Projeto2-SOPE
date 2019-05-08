@@ -24,10 +24,9 @@ int main(int argc, char *argv[])
     }
 
 
-sleep(2);
+    sleep(2);
     //create admin account
-    bank_account_t admin = create_account(argv[2], "test", 0);
-    show_bank_account(admin.account_id);
+    create_account(argv[2], "test", 0,0);
 
     //TODO: add balconies
 
@@ -37,10 +36,10 @@ sleep(2);
     //reads from server(fifo) info send by user
     read_fifo_server(SERVER_FIFO_PATH);
 
-    //tlv_reply_t t = join_structs_to_send_a(0); //TODO: add struct with info to pass
+    tlv_reply_t t = join_structs_to_send_a(0); //TODO: add struct with info to pass
 
-    //writes answer to user by answer (fifo)
-    //write_fifo_answer(USER_FIFO_PATH_PREFIX, &t);
+   // writes answer to user by answer (fifo)
+    write_fifo_answer(USER_FIFO_PATH_PREFIX, &t);
 
     return 0;
 }

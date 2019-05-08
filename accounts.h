@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-bank_account_t create_account(char* password, char* salt, int balance);
+ret_code_t create_account(char *password, char *salt, int balance, int id);
 void insert_account(bank_account_t account);
 void show_bank_account(int id);
 
