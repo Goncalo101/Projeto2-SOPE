@@ -17,9 +17,9 @@
 int main(int argc, char *argv[])
 {
 
-    if (argc != 3)
+    if (argc != 3 || atoi(argv[1]) > MAX_BANK_OFFICES)
     {
-        printf("Wrong Usage: user <id> <password> <delay> <operation nr> <list of arguments> \n");
+        printf("Wrong Usage: server <front office nr (<= %d)> <admin password>\n", MAX_BANK_OFFICES);
         exit(1);
     }
 
