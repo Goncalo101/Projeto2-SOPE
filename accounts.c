@@ -14,14 +14,17 @@ void insert_account(bank_account_t account)
 
 //TODO: add possibility to be differrent id and not incremented automatically--done
 //Need to verify if it was already used
-ret_code_t create_account(char *password, char *salt, int balance, int id) 
+ret_code_t create_account(char *password, char *salt, int balance, int new_id, int account_create_id) 
 {
     bank_account_t account;
 
-    if(account_ids[id] == 1)
+    if(account_create_id == 0)
+        return RC_OP_NALLOW;
+
+    if(account_ids[new_id] == 1)
         return RC_ID_IN_USE;
 
-    account.account_id = id;
+    account.account_id = new_id;
     account.balance = balance;
     strcpy(account.salt, salt);
     strcpy(account.hash, password);

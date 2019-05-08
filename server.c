@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 
     sleep(2);
     //create admin account
-    create_account(argv[2], "test", 0,0);
+    create_account(argv[2], "test",0,0,0);
 
     //TODO: add balconies
 
