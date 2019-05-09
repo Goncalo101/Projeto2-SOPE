@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     tlv_request_t request;
     read_fifo_server(SERVER_FIFO_PATH, &request);
 
-    int return_code = 0;
+    ret_code_t return_code = 0;
     rep_header_t header;
     tlv_reply_t t;
 
@@ -56,8 +56,11 @@ int main(int argc, char *argv[])
     }
     case 2: //transference
     {
-        // rep_transfer_t transfer;
-        //   t = join_structs_to_send_a(0, &header,NULL, &transfer, NULL);
+        rep_transfer_t transfer;
+        return_code = transfer_money(request.value.header.account_id, request.value.transfer.account_id, request.value.transfer.amount);
+        create_header_struct_a(getpid(), return_code, &header);
+        transfer.balance = accounts[request.value.header.account_id].balance;
+        t = join_structs_to_send_a(0, &header,NULL, &transfer, NULL);
         break;
     }
     case 3: //shutdown
