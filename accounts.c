@@ -18,10 +18,11 @@ void insert_account(bank_account_t account)
 //Need to verify if it was already used
 ret_code_t create_account(char *password, int balance, int new_id, int account_create_id) 
 {
-    char salt[SALT_LEN];
+    char salt[SALT_LEN +1];
     create_salt(salt);
-    //char hash[HASH_LEN+1];
-    //create_hash(password,salt,hash);
+    printf("anabanana\n");
+    char hash[HASH_LEN+1];
+    create_hash(password,salt,hash);
 
     bank_account_t account;
 

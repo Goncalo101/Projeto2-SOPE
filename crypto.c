@@ -21,12 +21,14 @@ char genRandom()  // Random string generator function.
     return alphanum[rand() % stringLength];
 }
 
-void create_salt(char*salt)
+void create_salt(char* salt)
 {
     srand(time(NULL));  
     
     for(int i = 0 ;i < SALT_LEN;i++)
         salt[i] = genRandom();
+    
+    salt[SALT_LEN]= '\0';
 
     printf("salt %s \n", salt);
 
@@ -36,10 +38,9 @@ void create_salt(char*salt)
 
 void create_hash(char*pass, char*salt, char*hash)
 {
-    char tohash[BUFFER_SIZE];
-    strncat(tohash,pass, strlen(pass));
+    char tohash[HASH_LEN + SALT_LEN +1];
+    strcpy(tohash,pass);
     strncat(tohash,salt, strlen(salt));
-
     sha256(tohash,hash);
 
 }
@@ -49,21 +50,21 @@ void sha256(const char* file_name, char* result)
 {
     int fd[2];
     pid_t pid;
-
     pipe(fd);
 
     pid = fork();
 
+
     if (pid == 0) {
         dup2(fd[WRITE], STDOUT_FILENO);
         close(fd[READ]);
+        char command[BUFFER_SIZE];
+        sprintf(command, "echo -n \"%s\" | sha256sum" , file_name);
+        system(command);
 
-        char program_name[] = "sha256sum";
-
-        execlp(program_name, program_name, file_name, NULL);
     } else {
         close(fd[WRITE]);
-        memset(result, 0, BUFFER_SIZE * sizeof(char));
+        memset(result, 0, HASH_LEN * sizeof(char));
         read(fd[READ], result, SHA256_SIZE * sizeof(char));
     }
 }
