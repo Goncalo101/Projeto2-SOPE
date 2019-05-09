@@ -4,8 +4,7 @@
 #include <stdio.h>
 #include "crypto.h"
 
-bank_account_t accounts[MAX_BANK_ACCOUNTS];
-int account_ids[MAX_BANK_ACCOUNTS];
+
 
 void insert_account(bank_account_t account)
 {
