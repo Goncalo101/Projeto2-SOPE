@@ -72,6 +72,52 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
     return RC_OK;
 }
 
+int getHash(char* password, char* salt, char* hash)
+{
+    int fd[2];
+    int stdout_copy;
+    int status;
+    pid_t pid;
+    char stringToHash[strlen(password) + 1];
+    sprintf(stringToHash, "%s%s", password, salt);
+
+    if (pipe(fd) != 0) {
+        perror("Error creating pipe");
+        return 1;
+    }
+
+    stdout_copy = dup(STDOUT_FILENO);
+
+    pid = fork();
+    if (pid > 0) {
+        close(fd[WRITE]);
+        
+        if (read(fd[READ], hash, HASH_LEN) == 0) {
+            perror("Error reading hash");
+            return 1;
+        }
+
+        wait(&status);
+        if(WEXITSTATUS(status) == 1) return 1;
+    }
+    else if (pid == 0) {
+        close(fd[READ]);
+        dup2(fd[WRITE], STDOUT_FILENO);
+        execlp("sha256sum", "sha256sum", stringToHash, NULL);
+        perror("Error obtaining hash");
+        exit(1);
+    }
+    else {
+        perror("Error doing fork");
+        return 1;
+    }
+
+    dup2(stdout_copy, STDOUT_FILENO);
+    close(stdout_copy);
+
+    return 0;
+}
+
 
 //test
 void show_bank_account(int id)
