@@ -8,8 +8,6 @@
 #include "define.h"
 #include "types.h"
 
-#include <errno.h>
-
 /*generate salt*/
 //--------------------------------------------------------------------------------------
 static const char alphanum[] =
@@ -60,7 +58,7 @@ void sha256(const char* file_name, char* result)
     if (pid == 0) {
         dup2(fd[WRITE], STDOUT_FILENO);
         close(fd[READ]);
-            
+
         char command[BUFFER_SIZE];
         sprintf(command, "echo -n %s | sha256sum" , file_name); 
         system(command);
