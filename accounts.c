@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include "crypto.h"
 
 bank_account_t accounts[MAX_BANK_ACCOUNTS];
 int account_ids[MAX_BANK_ACCOUNTS];
@@ -12,10 +13,16 @@ void insert_account(bank_account_t account)
     account_ids[account.account_id] = 1;
 }
 
+
 //TODO: add possibility to be differrent id and not incremented automatically--done
 //Need to verify if it was already used
-ret_code_t create_account(char *password, char *salt, int balance, int new_id, int account_create_id) 
+ret_code_t create_account(char *password, int balance, int new_id, int account_create_id) 
 {
+    char salt[SALT_LEN];
+    create_salt(salt);
+    char hash[HASH_LEN+1];
+    create_hash(password,salt,hash);
+
     bank_account_t account;
 
     if(account_create_id == 0)
@@ -32,7 +39,6 @@ ret_code_t create_account(char *password, char *salt, int balance, int new_id, i
     insert_account(account);
 
     //RC_OTHER
-    //RC_OP_NALLOW
 
     //add log here
     return RC_OK;

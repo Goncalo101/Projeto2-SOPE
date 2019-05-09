@@ -4,9 +4,6 @@
 #include <string.h>
 #include "constants.h"
 
-#define WRONG_ARGUMENTS 1
-
-
 typedef struct {
     int id;
     char password[MAX_PASSWORD_LEN +1];

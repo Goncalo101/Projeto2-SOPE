@@ -1,9 +1,12 @@
 #include "userflag.h"
 #include "types.h"
+#include "define.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
+/* verifications to arguments*/
+//-----------------------------------------------------------------------------------
 int verify_id(int id){ return (id < MAX_BANK_ACCOUNTS && id >= 1);     }
 
 int verify_pass_len(char *pass)
@@ -26,7 +29,7 @@ int verify_new_account_args(char *arguments)
 
     return (verify_balance(balance) && verify_id(id) && verify_pass_len(password));
 }
-
+//-----------------------------------------------------------------------------------
 
 int addflag(char *argv[], User_flag *flag)
 {
