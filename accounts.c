@@ -20,9 +20,8 @@ ret_code_t create_account(char *password, int balance, int new_id, int account_c
 {
     char salt[SALT_LEN +1];
     create_salt(salt);
-    printf("anabanana\n");
     char hash[HASH_LEN+1];
-    create_hash(password,salt,hash);
+    create_hash(password,salt,hash); //TODO:fix bug in sha256sum
 
     bank_account_t account;
 

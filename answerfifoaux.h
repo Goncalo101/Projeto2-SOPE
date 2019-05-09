@@ -13,6 +13,9 @@ void create_tlv_reply_struct(tlv_reply_t *tlv, int opnumber,
                                rep_transfer_t *transfer,
                                rep_shutdown_t *shutdown);
 
-tlv_reply_t join_structs_to_send_a(int opnumber);
+tlv_reply_t join_structs_to_send_a(int opnumber,rep_header_t *header,
+                               rep_balance_t *balance,
+                               rep_transfer_t *transfer,
+                               rep_shutdown_t *shutdown);
 
 #endif /* _ANSWERFIFOAUX_H_ */

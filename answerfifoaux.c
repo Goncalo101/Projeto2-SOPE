@@ -24,10 +24,10 @@ void create_shutdown_struct_a(int active, rep_shutdown_t *shutd)
 }
 
 void create_tlv_reply_struct(tlv_reply_t *tlv, int opnumber,
-                               rep_header_t *header,
-                               rep_balance_t *balance,
-                               rep_transfer_t *transfer,
-                               rep_shutdown_t *shutdown)
+                             rep_header_t *header,
+                             rep_balance_t *balance,
+                             rep_transfer_t *transfer,
+                             rep_shutdown_t *shutdown)
 {
     rep_value_t value;
     value.header = *header;
@@ -44,40 +44,14 @@ void create_tlv_reply_struct(tlv_reply_t *tlv, int opnumber,
     tlv->value = value;
 }
 
-tlv_reply_t join_structs_to_send_a(int opnumber)
+tlv_reply_t join_structs_to_send_a(int opnumber, rep_header_t *header,
+                                   rep_balance_t *balance,
+                                   rep_transfer_t *transfer,
+                                   rep_shutdown_t *shutdown)
 //TODO: add struct with values from the operations to use on the right places and respective return values?
 {
-    rep_header_t header;
-    rep_balance_t balance;
-    rep_transfer_t transfer;
-    rep_shutdown_t shutdown;
     tlv_reply_t tlv;
-
-    create_header_struct_a(getpid(),0, &header);
-
-    switch(opnumber)
-    {
-    case 1:
-        create_balance_struct_a(0, &balance); //TODO: add real value
-        create_tlv_reply_struct(&tlv, opnumber,&header, &balance, NULL,NULL);
-        break;
-    case 2:
-    {
-        create_transfer_struct_a(0,&transfer);
-        create_tlv_reply_struct(&tlv, opnumber,&header, NULL, &transfer, NULL);
-        break;
-    }
-    case 3:
-    {
-        create_shutdown_struct_a(0,&shutdown);
-        create_tlv_reply_struct(&tlv, opnumber,&header, NULL, &transfer, NULL);
-        break;
-    }
-    case 0:
-        create_tlv_reply_struct(&tlv,opnumber, &header, NULL, NULL, NULL);
-        break;
-    }
-
+    create_tlv_reply_struct(&tlv, opnumber, header, balance, transfer, shutdown);
 
     return tlv;
 }
