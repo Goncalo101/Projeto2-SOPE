@@ -20,8 +20,8 @@ ret_code_t create_account(char *password, int balance, int new_id, int account_c
 {
     char salt[SALT_LEN];
     create_salt(salt);
-    char hash[HASH_LEN+1];
-    create_hash(password,salt,hash);
+    //char hash[HASH_LEN+1];
+    //create_hash(password,salt,hash);
 
     bank_account_t account;
 
@@ -34,7 +34,7 @@ ret_code_t create_account(char *password, int balance, int new_id, int account_c
     account.account_id = new_id;
     account.balance = balance;
     strcpy(account.salt, salt);
-    strcpy(account.hash, password);
+    strcpy(account.hash, password); //TODO:add hash
 
     insert_account(account);
 

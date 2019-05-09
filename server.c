@@ -34,7 +34,9 @@ int main(int argc, char *argv[])
     mkfifo(SERVER_FIFO_PATH, 0660);
 
     //reads from server(fifo) info send by user
-    read_fifo_server(SERVER_FIFO_PATH);
+    tlv_request_t request;
+    read_fifo_server(SERVER_FIFO_PATH, &request);
+    printf("request %d \n", request.length);
 
     tlv_reply_t t = join_structs_to_send_a(0); //TODO: add struct with info to pass
 

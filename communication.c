@@ -33,10 +33,8 @@ void read_fifo_answer(char *path)
     printf("%d", t.type);
 }
 
-void read_fifo_server(char *path)
+void read_fifo_server(char *path, tlv_request_t *t)
 {
-    tlv_request_t t;
-
     int fifo = open(path, O_RDONLY);
     while (fifo == -1)
     {
@@ -44,11 +42,7 @@ void read_fifo_server(char *path)
         fifo = open(path, O_RDONLY);
     }
 
-    read(fifo, &t, sizeof(t));
-
-    // printf("type: %d", t->value.create.account_id);
-
-
+    read(fifo, t, sizeof(t));
 }
 
 void write_fifo_server(char *path, tlv_request_t *to_write)
