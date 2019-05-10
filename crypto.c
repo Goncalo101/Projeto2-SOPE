@@ -1,8 +1,8 @@
 #include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <time.h>
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <unistd.h>
 
 #include "crypto.h"
 #include "define.h"
@@ -10,38 +10,35 @@
 
 /*generate salt*/
 //--------------------------------------------------------------------------------------
-static const char alphanum[] =
-"0123456789"
-"abcdefghijklmnopqrstuvwxyz";
+static const char alphanum[] = "0123456789"
+                               "abcdefghijklmnopqrstuvwxyz";
 
 int stringLength = sizeof(alphanum) - 1;
 
-char genRandom()  // Random string generator function.
+char genRandom() // Random string generator function.
 {
     return alphanum[rand() % stringLength];
 }
 
 void create_salt(char* salt)
 {
-    srand(time(NULL));  
-    
-    for(int i = 0 ;i < SALT_LEN;i++)
-        salt[i] = genRandom();
-    
-    salt[SALT_LEN]= '\0';
+    srand(time(NULL));
 
+    for (int i = 0; i < SALT_LEN; i++)
+        salt[i] = genRandom();
+
+    salt[SALT_LEN] = '\0';
 }
 
 //--------------------------------------------------------------------------------------
 
-void create_hash(char*pass, char*salt, char*hash)
+void create_hash(char* pass, char* salt, char* hash)
 {
-    char tohash[HASH_LEN + SALT_LEN +1];
-    strcpy(tohash,pass);
-    strncat(tohash,salt, strlen(salt));
-    sha256(tohash,hash);
+    char tohash[HASH_LEN + SALT_LEN + 1];
+    strcpy(tohash, pass);
+    strncat(tohash, salt, strlen(salt));
+    sha256(tohash, hash);
 }
-
 
 void sha256(const char* file_name, char* result)
 {
@@ -51,13 +48,12 @@ void sha256(const char* file_name, char* result)
 
     pid = fork();
 
-
     if (pid == 0) {
         dup2(fd[WRITE], STDOUT_FILENO);
         close(fd[READ]);
 
         char command[BUFFER_SIZE];
-        sprintf(command, "echo -n %s | sha256sum" , file_name); 
+        sprintf(command, "echo -n %s | sha256sum", file_name);
         system(command);
 
     } else {

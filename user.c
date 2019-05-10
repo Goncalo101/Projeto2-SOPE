@@ -5,22 +5,20 @@
 #include <unistd.h>
 
 #include "communication.h"
-#include "serverfifoaux.h"
-#include "userflag.h"
 #include "constants.h"
+#include "serverfifoaux.h"
 #include "types.h"
+#include "userflag.h"
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    if (argc != 6)
-    {
+    if (argc != 6) {
         printf("Wrong Usage: user <id> <password> <delay> <operation nr> <list of arguments> \n");
         exit(1);
     }
 
     User_flag flag;
-    if(addflag(argv, &flag) != 0)
-    {
+    if (addflag(argv, &flag) != 0) {
         printf("wrong arguments\n");
         exit(0);
     }
@@ -34,11 +32,11 @@ int main(int argc, char *argv[])
     printf("aaaaa\n");
     //writes to server(fifo) the order
     write_fifo_server(SERVER_FIFO_PATH, &t);
-      printf("bbbbbbb\n");
-      sleep(2);
+    printf("bbbbbbb\n");
+    sleep(2);
     //opens answer(fifo) to recive answer from server
     read_fifo_answer(USER_FIFO_PATH_PREFIX);
-          printf("ccccccc\n");
+    printf("ccccccc\n");
 
     return 0;
 }

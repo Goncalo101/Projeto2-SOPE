@@ -1,6 +1,6 @@
 #include "userflag.h"
-#include "types.h"
 #include "define.h"
+#include "types.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +9,7 @@
 //-----------------------------------------------------------------------------------
 int verify_id(int id) { return (id < MAX_BANK_ACCOUNTS && id >= 1); }
 
-int verify_pass_len(char *pass)
+int verify_pass_len(char* pass)
 {
     int l = strlen(pass);
     return (l < MAX_PASSWORD_LEN && l > MIN_PASSWORD_LEN);
@@ -19,7 +19,7 @@ int verify_opnumber(int opnumber) { return (opnumber <= 4 && opnumber > -1); }
 
 int verify_balance(int balance) { return (balance > MIN_BALANCE && balance < MAX_BALANCE); }
 
-int verify_new_account_args(char *arguments)
+int verify_new_account_args(char* arguments)
 {
     int id_dest, amount;
     id_dest = amount = 0;
@@ -28,7 +28,7 @@ int verify_new_account_args(char *arguments)
     return (verify_balance(amount) && verify_id(id_dest));
 }
 
-int verify_transfer_arguments(char *arguments)
+int verify_transfer_arguments(char* arguments)
 {
     int id, balance;
     id = balance = 0;
@@ -39,7 +39,7 @@ int verify_transfer_arguments(char *arguments)
 }
 //-----------------------------------------------------------------------------------
 
-int addflag(char *argv[], User_flag *flag)
+int addflag(char* argv[], User_flag* flag)
 {
     if (verify_id(flag->id) == 0 && verify_pass_len(flag->password) && verify_opnumber(flag->opnumber))
         return WRONG_ARGUMENTS;
@@ -50,16 +50,13 @@ int addflag(char *argv[], User_flag *flag)
     flag->opnumber = atoi(argv[4]);
     strncpy(flag->arguments, argv[5], sizeof(flag->arguments));
 
-    switch (flag->opnumber)
-    {
-    case OP_CREATE_ACCOUNT:
-    {
+    switch (flag->opnumber) {
+    case OP_CREATE_ACCOUNT: {
         if (verify_new_account_args(flag->arguments) == 0)
             return WRONG_ARGUMENTS;
         break;
     }
-    case OP_TRANSFER:
-    {
+    case OP_TRANSFER: {
         if (verify_transfer_arguments(flag->arguments) == 0)
             return WRONG_ARGUMENTS;
         break;
@@ -70,7 +67,6 @@ int addflag(char *argv[], User_flag *flag)
 
     return 0;
 }
-
 
 // void printTest(User_flag flag)
 // {
