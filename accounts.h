@@ -16,6 +16,7 @@ void opDelay(int delayMS, int threadID);
 tlv_reply_t newReply();
 tlv_reply_t makeErrorReply(int retCode, tlv_reply_t request);
 tlv_reply_t makeBalanceReply(int accountId, int balance);
+tlv_reply_t handleBalanceRequest(tlv_request_t request, int threadID);
 
 
 #endif /* _ACCOUNTS_H_ */

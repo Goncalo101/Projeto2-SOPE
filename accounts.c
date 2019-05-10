@@ -129,14 +129,13 @@ void show_bank_account(int id)
     printf("%s\n", test.salt);
 }
 
-
-
+//handle balance request functions
 bank_account_t* getAccount(uint32_t account_id){
     if(account_ids[account_id]!=1) return NULL;
     else return &accounts[account_id];
 }
 
-void opDelay(int delayMS, int threadID){
+void opDelay(int delayMS){
     usleep(delayMS*1000);
 }
 
@@ -175,4 +174,13 @@ tlv_reply_t makeBalanceReply(int accountId, int balance){
     reply.length=sizeof(reply.value.header) + sizeof(rep_balance_t);
 
     return reply;
+}
+
+tlv_reply_t handleBalanceRequest(tlv_request_t request){
+    opDelay(request.value.header.op_delay_ms;
+    if(request.value.account_id != ADMIN_ACCOUNT_ID){
+        bank_account_t* account = getAccount(request.value.header.account_id);
+        return makeBalanceReply(account->account_id,account->balance);
+    }
+    else return makeErrorReply(RC_OP_NALLOW, request);
 }
