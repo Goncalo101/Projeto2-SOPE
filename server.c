@@ -49,9 +49,11 @@ int main(int argc, char *argv[])
     }
     case 1: //balance check
     {
-        // rep_balance_t balance;
-        // //add operation and fill elements of balance with information based on operation
-        // t = join_structs_to_send_a(0, &header,&balance, NULL, NULL);
+        rep_balance_t balance;
+        int balance_nbr = 0;
+        handleBalanceRequest(request.value.header.op_delay_ms, request.value.header.account_id,&balance_nbr);
+        create_balance_struct_a(balance_nbr,&balance);
+        t = join_structs_to_send_a(0, &header,&balance, NULL, NULL);
         break;
     }
     case 2: //transference
