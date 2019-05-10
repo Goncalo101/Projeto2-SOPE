@@ -128,3 +128,51 @@ void show_bank_account(int id)
     printf("%s\n", test.hash);
     printf("%s\n", test.salt);
 }
+
+
+
+bank_account_t* getAccount(uint32_t account_id){
+    if(account_ids[account_id]!=1) return NULL;
+    else return &accounts[account_id];
+}
+
+void opDelay(int delayMS, int threadID){
+    usleep(delayMS*1000);
+}
+
+tlv_reply_t newReply(){
+    tlv_reply_t reply;
+
+    reply.type = -1;
+    reply.value.header.account_id = -1;
+    reply.value.header.ret_code = 0;
+    reply.value.balance.balance = 0;
+    reply.value.transfer.balance = 0;
+    reply.value.shutdown.active_offices = 0;
+    reply.length =-1;
+
+    return reply;
+}
+
+tlv_reply_t makeErrorReply(int retCode, tlv_reply_t request){
+    tlv_reply_t reply=newReply();
+
+    reply.type = request.type;
+    reply.value.header.account_id = request.value.header.account_id;
+    reply.value.header.ret_code = retCode;
+    reply.length=sizeof(reply.value.header);
+
+    return reply;
+}
+
+tlv_reply_t makeBalanceReply(int accountId, int balance){
+    tlv_reply_t reply;
+
+    reply.type = OP_BALANCE;
+    reply.value.header.account_id = accountId;
+    reply.value.balance.balance = balance;
+    reply.value.header.ret_code = RC_OK;
+    reply.length=sizeof(reply.value.header) + sizeof(rep_balance_t);
+
+    return reply;
+}

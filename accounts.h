@@ -11,6 +11,11 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
 void insert_account(bank_account_t account);
 void show_bank_account(int id);
 int getHash(char* password, char* salt, char* hash);
+bank_account_t* getAccount(uint32_t account_id);
+void opDelay(int delayMS, int threadID);
+tlv_reply_t newReply();
+tlv_reply_t makeErrorReply(int retCode, tlv_reply_t request);
+tlv_reply_t makeBalanceReply(int accountId, int balance);
 
 
 #endif /* _ACCOUNTS_H_ */
