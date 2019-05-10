@@ -31,7 +31,6 @@ void read_fifo_answer(char *path)
     read(fifo, &t, sizeof(t));
     close(fifo);
 
-    printf("%d", t.type);
 }
 
 void read_fifo_server(char *path, tlv_request_t *t)
@@ -43,8 +42,10 @@ void read_fifo_server(char *path, tlv_request_t *t)
         fifo = open(path, O_RDONLY);
     }
 
-    read(fifo, t, sizeof(t));
+    read(fifo, t, sizeof(*t));
     close(fifo);
+
+    printf("passread \n", t->value.create.account_id);
 }
 
 void write_fifo_server(char *path, tlv_request_t *to_write)
@@ -56,7 +57,7 @@ void write_fifo_server(char *path, tlv_request_t *to_write)
         fifo = open(path, O_WRONLY);
     }
 
-    write(fifo, to_write, sizeof(to_write));
+    write(fifo, to_write, sizeof(*to_write));
     close(fifo);
 }
 

@@ -30,8 +30,6 @@ void create_salt(char* salt)
     
     salt[SALT_LEN]= '\0';
 
-    printf("salt %s \n", salt);
-
 }
 
 //--------------------------------------------------------------------------------------
@@ -42,7 +40,6 @@ void create_hash(char*pass, char*salt, char*hash)
     strcpy(tohash,pass);
     strncat(tohash,salt, strlen(salt));
     sha256(tohash,hash);
-    printf("hash: %s\n", hash);
 }
 
 

@@ -12,6 +12,25 @@ void insert_account(bank_account_t account)
 
 //TODO: add possibility to be differrent id and not incremented automatically--done
 //Need to verify if it was already used
+
+void create_admin_account(char *password)
+{
+    char salt[SALT_LEN + 1];
+    create_salt(salt);
+    char hash[HASH_LEN + 1];
+    create_hash(password, salt, hash); //TODO:fix bug in sha256sum
+
+    bank_account_t account;
+
+    account.account_id = 0;
+    account.balance = 0;
+    strcpy(account.salt, salt);
+    strcpy(account.hash, password); //TODO:add hash
+
+    insert_account(account);
+    //add log here
+}
+
 ret_code_t create_account(char *password, int balance, int new_id, int account_create_id)
 {
     char salt[SALT_LEN + 1];
@@ -98,10 +117,9 @@ ret_code_t handleBalanceRequest(int delay, int id, int *balance)
     }
     else
     {
-         return RC_OP_NALLOW;
+        return RC_OP_NALLOW;
     }
 }
-       
 
 //test
 void show_bank_account(int id)
