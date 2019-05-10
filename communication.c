@@ -28,7 +28,7 @@ void read_fifo_answer(char *path)
         fifo = open(path, O_RDONLY);
     }
 
-    read(fifo, &t, sizeof(t));
+    read(fifo, &t, sizeof(*t));
     close(fifo);
 
 }
@@ -71,6 +71,6 @@ void write_fifo_answer(char *path, tlv_reply_t *to_write)
         fifo = open(path, O_WRONLY);
     }
 
-    write(fifo, to_write, sizeof(to_write));
+    write(fifo, to_write, sizeof(*to_write));
     close(fifo);
 }
