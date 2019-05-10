@@ -177,7 +177,7 @@ tlv_reply_t makeBalanceReply(int accountId, int balance){
 }
 
 tlv_reply_t handleBalanceRequest(tlv_request_t request){
-    opDelay(request.value.header.op_delay_ms;
+    opDelay(request.value.header.op_delay_ms);
     if(request.value.account_id != ADMIN_ACCOUNT_ID){
         bank_account_t* account = getAccount(request.value.header.account_id);
         return makeBalanceReply(account->account_id,account->balance);
