@@ -1,10 +1,10 @@
 #include "communication.h"
 
-#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <fcntl.h>
 #include <sys/stat.h>
+#include <string.h>
 #include <unistd.h>
 
 // int readline(int fd, char *str)
@@ -17,12 +17,13 @@
 //     return (n > 0);
 // }
 
-void read_fifo_answer(char* path)
+void read_fifo_answer(char *path)
 {
     tlv_reply_t t;
 
     int fifo = open(path, O_RDONLY);
-    while (fifo == -1) {
+    while (fifo == -1)
+    {
         sleep(1);
         fifo = open(path, O_RDONLY);
     }
@@ -31,10 +32,11 @@ void read_fifo_answer(char* path)
     close(fifo);
 }
 
-void read_fifo_server(char* path, tlv_request_t* t)
+void read_fifo_server(char *path, tlv_request_t *t)
 {
     int fifo = open(path, O_RDONLY);
-    while (fifo == -1) {
+    while (fifo == -1)
+    {
         sleep(1);
         fifo = open(path, O_RDONLY);
     }
@@ -42,13 +44,14 @@ void read_fifo_server(char* path, tlv_request_t* t)
     read(fifo, t, sizeof(*t));
     close(fifo);
 
-    printf("passread \n", t->value.create.account_id);
+    // printmakef("passread \n", t->value.create.account_id);
 }
 
-void write_fifo_server(char* path, tlv_request_t* to_write)
+void write_fifo_server(char *path, tlv_request_t *to_write)
 {
     int fifo = open(path, O_WRONLY);
-    while (fifo == -1) {
+    while (fifo == -1)
+    {
         sleep(1);
         fifo = open(path, O_WRONLY);
     }
@@ -58,10 +61,11 @@ void write_fifo_server(char* path, tlv_request_t* to_write)
 }
 
 //TODO: update to right struct
-void write_fifo_answer(char* path, tlv_reply_t* to_write)
+void write_fifo_answer(char *path, tlv_reply_t *to_write)
 {
     int fifo = open(path, O_WRONLY);
-    while (fifo == -1) {
+    while (fifo == -1)
+    {
         sleep(1);
         fifo = open(path, O_WRONLY);
     }

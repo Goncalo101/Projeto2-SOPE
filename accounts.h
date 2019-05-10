@@ -13,7 +13,7 @@ void show_bank_account(int id);
 bank_account_t* getAccount(uint32_t account_id);
 void opDelay(int delayMS);
 ret_code_t handleBalanceRequest(int delay, int id, int* balance);
-
+ret_code_t handle_shutdown(int id, int *shutdown, int *active_nbr);
 void create_admin_account(char* password);
 
 #endif /* _ACCOUNTS_H_ */

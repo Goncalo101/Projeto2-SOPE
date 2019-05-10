@@ -13,7 +13,7 @@ void insert_account(bank_account_t account)
 //TODO: add possibility to be differrent id and not incremented automatically--done
 //Need to verify if it was already used
 
-void create_admin_account(char* password)
+void create_admin_account(char *password)
 {
     char salt[SALT_LEN + 1];
     create_salt(salt);
@@ -31,7 +31,7 @@ void create_admin_account(char* password)
     //add log here
 }
 
-ret_code_t create_account(char* password, int balance, int new_id, int account_create_id)
+ret_code_t create_account(char *password, int balance, int new_id, int account_create_id)
 {
     char salt[SALT_LEN + 1];
     create_salt(salt);
@@ -63,22 +63,26 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
 {
     // check if either of the accounts doesn't exist (the sender has to exist so it might not be
     // necessary to check if the sender exists)
-    if (account_ids[sender_id] == 0 || account_ids[receiver_id] == 0) {
+    if (account_ids[sender_id] == 0 || account_ids[receiver_id] == 0)
+    {
         return RC_ID_NOT_FOUND;
     }
 
     // check if accounts are the same
-    if (account_ids[sender_id] == account_ids[receiver_id]) {
+    if (account_ids[sender_id] == account_ids[receiver_id])
+    {
         return RC_SAME_ID;
     }
 
     // check if sender's balance would be too low
-    if (accounts[sender_id].balance - value < MIN_BALANCE) {
+    if (accounts[sender_id].balance - value < MIN_BALANCE)
+    {
         return RC_NO_FUNDS;
     }
 
     // check if receiver's balance would be too high
-    if (accounts[sender_id].balance + value > MAX_BALANCE) {
+    if (accounts[sender_id].balance + value > MAX_BALANCE)
+    {
         return RC_TOO_HIGH;
     }
 
@@ -89,7 +93,7 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
 }
 
 //handle balance request functions
-bank_account_t* getAccount(uint32_t account_id)
+bank_account_t *getAccount(uint32_t account_id)
 {
     if (account_ids[account_id] != 1)
         return NULL;
@@ -102,16 +106,31 @@ void opDelay(int delayMS)
     usleep(delayMS * 1000);
 }
 
-ret_code_t handleBalanceRequest(int delay, int id, int* balance)
+ret_code_t handleBalanceRequest(int delay, int id, int *balance)
 {
     //opDelay(delay); //TODO:test functionality
-    if (id != ADMIN_ACCOUNT_ID) {
-        bank_account_t* account = getAccount(id);
+    if (id != ADMIN_ACCOUNT_ID)
+    {
+        bank_account_t *account = getAccount(id);
         *balance = account->balance;
         return RC_OK;
-    } else {
+    }
+    else
+    {
         return RC_OP_NALLOW;
     }
+}
+
+ret_code_t handle_shutdown(int id, int *shutdown, int *active_nbr)
+{
+    if (id == 0)
+    {
+        *shutdown = 1;
+        *active_nbr = 1; //TODO:add real number of active threads
+        return RC_OK;
+    }
+    else 
+        return RC_OP_NALLOW;
 }
 
 //test

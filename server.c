@@ -82,11 +82,14 @@ int main(int argc, char* argv[])
         }
         case 3: // shutdown
         {
-            // rep_shutdown_t shutdown;
-            //   t = join_structs_to_send_a(0, &header,NULL,NULL, &shutdown);
-            if (request.value.header.account_id == 0)
-                shutdown = true;
+            int active;
+            rep_shutdown_t shutdown_str;
+            handle_shutdown(request.value.header.account_id,&shutdown,&active);
+            create_shutdown_struct_a(0,&shutdown_str); //TODO:add real numnber of active banks(when threads)
+            t = join_structs_to_send_a(0, &header,NULL,NULL, &shutdown_str);
             break;
+
+            
         }
         }
 
