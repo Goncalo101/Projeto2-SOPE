@@ -23,10 +23,6 @@ void create_new_account_struct(User_flag flag, req_create_account_t *create)
     create->balance = balance;
     strncpy(create->password, password, sizeof(create->password));
 
-    printf("id %d \n", create->account_id);
-    printf("balance %d \n", create->balance);
-    printf("pass %s \n", create->password);
-
 }
 
 void create_transfer_struct(User_flag flag,req_transfer_t *transf)
@@ -37,9 +33,6 @@ void create_transfer_struct(User_flag flag,req_transfer_t *transf)
     sscanf(flag.arguments, "%d %d", &id, &amount);
     transf->account_id = id;
     transf->amount = amount;
-
-    // printf("id %d \n", transf.account_id);
-    // printf("amount %d \n", transf.amount);
 
 }
 

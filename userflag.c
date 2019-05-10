@@ -71,11 +71,12 @@ int addflag(char *argv[], User_flag *flag)
     return 0;
 }
 
-void printTest(User_flag flag)
-{
-    printf("id %d \n", flag.id);
-    printf("pass %s \n", flag.password);
-    printf("delay %d \n", flag.delay);
-    printf("opnumber %d \n", flag.opnumber);
-    printf("arguments %s \n", flag.arguments);
-}
+
+// void printTest(User_flag flag)
+// {
+//     printf("id %d \n", flag.id);
+//     printf("pass %s \n", flag.password);
+//     printf("delay %d \n", flag.delay);
+//     printf("opnumber %d \n", flag.opnumber);
+//     printf("arguments %s \n", flag.arguments);
+// }
