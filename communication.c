@@ -29,6 +29,7 @@ void read_fifo_answer(char *path)
     }
 
     read(fifo, &t, sizeof(t));
+    close(fifo);
 
     printf("%d", t.type);
 }
@@ -43,6 +44,7 @@ void read_fifo_server(char *path, tlv_request_t *t)
     }
 
     read(fifo, t, sizeof(t));
+    close(fifo);
 }
 
 void write_fifo_server(char *path, tlv_request_t *to_write)
@@ -55,6 +57,7 @@ void write_fifo_server(char *path, tlv_request_t *to_write)
     }
 
     write(fifo, to_write, sizeof(to_write));
+    close(fifo);
 }
 
 //TODO: update to right struct
@@ -68,4 +71,5 @@ void write_fifo_answer(char *path, tlv_reply_t *to_write)
     }
 
     write(fifo, to_write, sizeof(to_write));
+    close(fifo);
 }
