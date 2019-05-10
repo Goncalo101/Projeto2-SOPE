@@ -28,9 +28,8 @@ void read_fifo_answer(char *path)
         fifo = open(path, O_RDONLY);
     }
 
-    read(fifo, &t, sizeof(*t));
+    read(fifo, &t, sizeof(t));
     close(fifo);
-
 }
 
 void read_fifo_server(char *path, tlv_request_t *t)
