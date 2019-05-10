@@ -17,10 +17,8 @@
 //     return (n > 0);
 // }
 
-void read_fifo_answer(char *path)
+void read_fifo_answer(char *path, tlv_reply_t *t)
 {
-    tlv_reply_t t;
-
     int fifo = open(path, O_RDONLY);
     while (fifo == -1)
     {
@@ -28,7 +26,7 @@ void read_fifo_answer(char *path)
         fifo = open(path, O_RDONLY);
     }
 
-    read(fifo, &t, sizeof(t));
+    read(fifo, &t, sizeof(*t));
     close(fifo);
 }
 
@@ -44,7 +42,9 @@ void read_fifo_server(char *path, tlv_request_t *t)
     read(fifo, t, sizeof(*t));
     close(fifo);
 
-    // printmakef("passread \n", t->value.create.account_id);
+    printf("id %d \n", t->value.create.account_id);
+    printf("type %d \n", t->type);
+    printf("lenght %d \n", t->length);
 }
 
 void write_fifo_server(char *path, tlv_request_t *to_write)

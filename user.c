@@ -33,9 +33,10 @@ int main(int argc, char* argv[])
     //writes to server(fifo) the order
     write_fifo_server(SERVER_FIFO_PATH, &t);
     printf("bbbbbbb\n");
-    sleep(2);
     //opens answer(fifo) to recive answer from server
-    read_fifo_answer(USER_FIFO_PATH_PREFIX);
+
+    tlv_reply_t reply;
+    read_fifo_answer(USER_FIFO_PATH_PREFIX,&reply);
     printf("ccccccc\n");
 
     return 0;
