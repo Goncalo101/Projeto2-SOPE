@@ -19,7 +19,7 @@ int verify_opnumber(int opnumber) { return (opnumber <= 4 && opnumber > -1); }
 
 int verify_balance(int balance) { return (balance > MIN_BALANCE && balance < MAX_BALANCE); }
 
-int verify_new_account_args(char* arguments)
+int verify_transfer_arguments(char* arguments)
 {
     int id_dest, amount;
     id_dest = amount = 0;
@@ -28,7 +28,7 @@ int verify_new_account_args(char* arguments)
     return (verify_balance(amount) && verify_id(id_dest));
 }
 
-int verify_transfer_arguments(char* arguments)
+int verify_new_account_args(char* arguments)
 {
     int id, balance;
     id = balance = 0;

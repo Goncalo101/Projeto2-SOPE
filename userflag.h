@@ -21,5 +21,7 @@ int verify_pass_len(char* pass);
 int verify_opnumber(int opnumber);
 int verify_balance(int balance);
 int verify_new_account_args(char* arguments);
+int verify_transfer_arguments(char* arguments);
+
 
 #endif /* _USERFLAG_H_ */

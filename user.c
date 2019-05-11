@@ -10,8 +10,20 @@
 #include "types.h"
 #include "userflag.h"
 
+void create_fifo(char *final)
+{
+    char pid[5];
+    strcpy(final,USER_FIFO_PATH_PREFIX);
+    sprintf(pid, "%d", getpid());
+    strcat(final,pid);
+}
+
 int main(int argc, char* argv[])
 {
+    char final[50];
+    create_fifo(final);
+    printf("%s \n", final);
+
     if (argc != 6) {
         printf("Wrong Usage: user <id> <password> <delay> <operation nr> <list of arguments> \n");
         exit(1);
@@ -28,7 +40,8 @@ int main(int argc, char* argv[])
 
     //creates fifo that will accomodate answer from server side (answer fifo)
     //TODO: add right name to fifo
-    mkfifo(USER_FIFO_PATH_PREFIX, 0660);
+    mkfifo(final, 0644);
+
     printf("aaaaa\n");
     //writes to server(fifo) the order
     write_fifo_server(SERVER_FIFO_PATH, &t);
@@ -39,5 +52,7 @@ int main(int argc, char* argv[])
     read_fifo_answer(USER_FIFO_PATH_PREFIX,&reply);
     printf("ccccccc\n");
 
+
+    unlink(final);
     return 0;
 }

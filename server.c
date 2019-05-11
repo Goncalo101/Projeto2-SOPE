@@ -14,7 +14,6 @@
 
 int main(int argc, char *argv[])
 {
-
     if (argc != 3 || atoi(argv[1]) > MAX_BANK_OFFICES)
     {
         printf("Wrong Usage: server <front office nr (<= %d)> <admin password>\n",
@@ -30,7 +29,7 @@ int main(int argc, char *argv[])
     // TODO: add balconies
 
     // create fifo to send information (server)
-    mkfifo(SERVER_FIFO_PATH, 0660);
+    mkfifo(SERVER_FIFO_PATH, 0644);
 
     // main loop
     while (!shutdown)
@@ -38,6 +37,8 @@ int main(int argc, char *argv[])
 
         // reads from server(fifo) info send by user
         tlv_request_t request;
+
+         printf("sdfersgtdfcdxfg\n");
         read_fifo_server(SERVER_FIFO_PATH, &request);
 
         ret_code_t return_code = 0;
@@ -89,9 +90,11 @@ int main(int argc, char *argv[])
         }
         
         // writes answer to user by answer (fifo)
+         printf("aahhhhhhhhhhhhhhhhhhhhhhhhaaaaaaaa\n");
         write_fifo_answer(USER_FIFO_PATH_PREFIX, &t);
+         printf("ddddddddddddd\n");
     }
 
-
+    unlink(SERVER_FIFO_PATH);
     return 0;
 }

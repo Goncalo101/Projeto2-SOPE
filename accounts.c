@@ -114,19 +114,22 @@ ret_code_t authenticate_user(req_header_t req_header)
 
     create_hash(req_header.password, accounts[account_index].salt, &hash);
 
-    if (strcmp(&hash,accounts[account_index].hash) == 0)
+    if (strcmp(&hash, accounts[account_index].hash) == 0)
         return RC_OK;
     else
         return RC_OTHER;
 }
 
 //handle balance request functions
-bank_account_t *get_account(uint32_t account_id)
+ret_code_t get_account(uint32_t account_id, bank_account_t *account)
 {
     if (account_ids[account_id] != 1)
-        return NULL;
+        return RC_OTHER;
     else
-        return &accounts[account_id];
+    {
+        *account = accounts[account_id];
+        return RC_OK;
+    }
 }
 
 void op_delay(int delayMS)
@@ -139,8 +142,14 @@ ret_code_t handle_balance_request(int delay, int id, int *balance)
     //opDelay(delay); //TODO:test functionality
     if (id != ADMIN_ACCOUNT_ID)
     {
-        bank_account_t *account = get_account(id);
-        *balance = account->balance;
+        bank_account_t account;
+        ret_code_t ret = get_account(id, &account);
+
+        if(ret == RC_OTHER)
+            return RC_OTHER;
+                  printf("sdrdthyu7tgedws\n");
+        printf("balance accountas<fdzgnhfbsdcaxZ %d \n", account.balance);
+        *balance = account.balance;
         return RC_OK;
     }
     else
