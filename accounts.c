@@ -92,6 +92,14 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
     return RC_OK;
 }
 
+int getAccountIndex(uint32_t account_id){
+    for(int i=0;i<accounts.size();i++){
+        if(accounts[i].account_id==account_id)
+            return i;
+    }
+    return -1;
+}
+
 //handle balance request functions
 bank_account_t *getAccount(uint32_t account_id)
 {
