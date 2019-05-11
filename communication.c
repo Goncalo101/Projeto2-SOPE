@@ -7,16 +7,6 @@
 #include <string.h>
 #include <unistd.h>
 
-// int readline(int fd, char *str)
-// {
-//     int n;
-//     do
-//     {
-//         n = read(fd, str, 1);
-//     } while (n > 0 && *str++ != '\0');
-//     return (n > 0);
-// }
-
 void read_fifo_answer(char *path, tlv_reply_t *t)
 {
     int fifo = open(path, O_RDONLY);
@@ -28,8 +18,7 @@ void read_fifo_answer(char *path, tlv_reply_t *t)
 
     read(fifo, &(t->type), sizeof(op_type_t));
     read(fifo, &(t->length), sizeof(uint32_t));
-    read(fifo, &(t->value), sizeof(rep_value_t));
-    // read(fifo, t, sizeof(tlv_reply_t));
+    read(fifo, &(t->value), t->length);
     close(fifo);
 }
 
@@ -44,11 +33,12 @@ void read_fifo_server(char *path, tlv_request_t *t)
 
     read(fifo, &(t->type), sizeof(op_type_t));
     read(fifo, &(t->length), sizeof(uint32_t));
-    read(fifo, &(t->value), sizeof(req_value_t));
-    // read(fifo, t, sizeof(tlv_request_t));
+    read(fifo, &(t->value), t->length);
     close(fifo);
 
-    printf("id %d \n", t->value.create.account_id);
+    printf("id create account %d \n", t->value.create.account_id);
+    printf("balance create account %d \n", t->value.create.balance);
+    printf("pass create account %s \n", t->value.create.password);
     printf("type %d \n", t->type);
     printf("lenght %d \n", t->length);
 }
@@ -64,7 +54,7 @@ void write_fifo_server(char *path, tlv_request_t *to_write)
 
     write(fifo, &(to_write->type), sizeof(op_type_t));
     write(fifo, &(to_write->length), sizeof(uint32_t));
-    write(fifo, &(to_write->value), sizeof(req_value_t));
+    write(fifo, &(to_write->value), sizeof(to_write->value));
     // write(fifo, to_write, sizeof(tlv_request_t));
     close(fifo);
 }
@@ -81,7 +71,7 @@ void write_fifo_answer(char *path, tlv_reply_t *to_write)
 
     write(fifo, &(to_write->type), sizeof(op_type_t));
     write(fifo, &(to_write->length), sizeof(uint32_t));
-    write(fifo, &(to_write->value), sizeof(rep_value_t));
+    write(fifo, &(to_write->value),  sizeof(to_write->value));
     // write(fifo, to_write, sizeof(tlv_reply_t));
     close(fifo);
 }
