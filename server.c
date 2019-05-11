@@ -50,6 +50,8 @@ int main(int argc, char *argv[])
         {
         case 0: // create account
         {
+            printf("password: %s, balance: %d, acc_id: %d\n", 
+            request.value.create.password, request.value.create.balance, request.value.create.account_id);
             return_code = create_account(
                 request.value.create.password, request.value.create.balance,
                 request.value.create.account_id, request.value.header.account_id);

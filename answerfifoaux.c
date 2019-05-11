@@ -39,9 +39,9 @@ void create_tlv_reply_struct(tlv_reply_t* tlv, int opnumber,
     if (shutdown != NULL)
         value.shutdown = *shutdown;
 
+    tlv->value = value;
     tlv->length = sizeof(value);
     tlv->type = opnumber;
-    tlv->value = value;
 }
 
 tlv_reply_t join_structs_to_send_a(int opnumber, rep_header_t* header,
