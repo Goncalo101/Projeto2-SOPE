@@ -100,6 +100,18 @@ int get_account_index(uint32_t account_id){
     return -1;
 }
 
+int authenticate_user(req_header_t req_header){
+    int account_index;
+    char* hash;
+
+    if(account_index=get_account_index(req_header.account_id)==-1) return 1;
+
+    create_hash(req_header.password,accounts[account_index].salt,hash);
+    
+    if(hash==accounts[account_index].hash) return 0;
+    else return 1;
+}
+
 //handle balance request functions
 bank_account_t *get_account(uint32_t account_id)
 {
