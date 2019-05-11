@@ -71,7 +71,7 @@ void write_fifo_answer(char *path, tlv_reply_t *to_write)
 
     write(fifo, &(to_write->type), sizeof(op_type_t));
     write(fifo, &(to_write->length), sizeof(uint32_t));
-    write(fifo, &(to_write->value),  sizeof(to_write->value));
+    write(fifo, &(to_write->value), sizeof(to_write->value));
     // write(fifo, to_write, sizeof(tlv_reply_t));
     close(fifo);
 }

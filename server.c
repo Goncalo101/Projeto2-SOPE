@@ -44,14 +44,11 @@ int main(int argc, char *argv[])
         rep_header_t header;
         tlv_reply_t t;
 
-        printf("type: %d \n", request.type);
 
         switch (request.type) // TODO: catch return codes
         {
         case 0: // create account
         {
-            printf("password: %s, balance: %d, acc_id: %d\n", 
-            request.value.create.password, request.value.create.balance, request.value.create.account_id);
             return_code = create_account(
                 request.value.create.password, request.value.create.balance,
                 request.value.create.account_id, request.value.header.account_id);
@@ -82,25 +79,19 @@ int main(int argc, char *argv[])
         }
         case 3: // shutdown
         {
-            printf("aaaaaaa\n");
             int active;
             rep_shutdown_t shutdown_str;
             handle_shutdown(request.value.header.account_id, &shutdown, &active);
-            printf("bbbbbbb\n");
             create_shutdown_struct_a(0, &shutdown_str); //TODO:add real numnber of active banks(when threads)
-            printf("ccccccc\n");
             t = join_structs_to_send_a(0, &header, NULL, NULL, &shutdown_str);
-            printf("ddddddd\n");
             break;
         }
         }
         
-          printf("fffffff\n");
         // writes answer to user by answer (fifo)
         write_fifo_answer(USER_FIFO_PATH_PREFIX, &t);
     }
 
-    printf("bshjfmg,h\n");
 
     return 0;
 }
