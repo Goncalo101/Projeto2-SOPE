@@ -92,24 +92,32 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
     return RC_OK;
 }
 
-int get_account_index(uint32_t account_id){
-    for(int i=0;i<accounts.size();i++){
-        if(accounts[i].account_id==account_id)
+int get_account_index(uint32_t account_id)
+{
+    for (int i = 0; i < MAX_BANK_ACCOUNTS; i++)
+    {
+        if (accounts[i].account_id == account_id)
             return i;
     }
     return -1;
 }
 
-int authenticate_user(req_header_t req_header){
+ret_code_t authenticate_user(req_header_t req_header)
+{
     int account_index;
-    char* hash;
+    char hash;
 
-    if(account_index=get_account_index(req_header.account_id)==-1) return 1;
+    account_index = get_account_index(req_header.account_id);
 
-    create_hash(req_header.password,accounts[account_index].salt,hash);
-    
-    if(hash==accounts[account_index].hash) return 0;
-    else return 1;
+    if (account_index == -1)
+        return RC_OTHER;
+
+    create_hash(req_header.password, accounts[account_index].salt, &hash);
+
+    if (strcmp(&hash,accounts[account_index].hash) == 0)
+        return RC_OK;
+    else
+        return RC_OTHER;
 }
 
 //handle balance request functions
@@ -149,7 +157,7 @@ ret_code_t handle_shutdown(int id, int *shutdown, int *active_nbr)
         *active_nbr = 1; //TODO:add real number of active threads
         return RC_OK;
     }
-    else 
+    else
         return RC_OP_NALLOW;
 }
 
