@@ -92,7 +92,7 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
     return RC_OK;
 }
 
-int getAccountIndex(uint32_t account_id){
+int get_account_index(uint32_t account_id){
     for(int i=0;i<accounts.size();i++){
         if(accounts[i].account_id==account_id)
             return i;
@@ -101,7 +101,7 @@ int getAccountIndex(uint32_t account_id){
 }
 
 //handle balance request functions
-bank_account_t *getAccount(uint32_t account_id)
+bank_account_t *get_account(uint32_t account_id)
 {
     if (account_ids[account_id] != 1)
         return NULL;
@@ -109,17 +109,17 @@ bank_account_t *getAccount(uint32_t account_id)
         return &accounts[account_id];
 }
 
-void opDelay(int delayMS)
+void op_delay(int delayMS)
 {
     usleep(delayMS * 1000);
 }
 
-ret_code_t handleBalanceRequest(int delay, int id, int *balance)
+ret_code_t handle_balance_request(int delay, int id, int *balance)
 {
     //opDelay(delay); //TODO:test functionality
     if (id != ADMIN_ACCOUNT_ID)
     {
-        bank_account_t *account = getAccount(id);
+        bank_account_t *account = get_account(id);
         *balance = account->balance;
         return RC_OK;
     }
