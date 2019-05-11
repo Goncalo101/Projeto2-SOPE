@@ -91,7 +91,9 @@ int main(int argc, char *argv[])
         
         // writes answer to user by answer (fifo)
          printf("aahhhhhhhhhhhhhhhhhhhhhhhhaaaaaaaa\n");
-        write_fifo_answer(USER_FIFO_PATH_PREFIX, &t);
+         char final[50];
+         create_name_fifo(final, request.value.header.pid);
+        write_fifo_answer(final, &t);
          printf("ddddddddddddd\n");
     }
 

@@ -10,18 +10,11 @@
 #include "types.h"
 #include "userflag.h"
 
-void create_fifo(char *final)
-{
-    char pid[5];
-    strcpy(final,USER_FIFO_PATH_PREFIX);
-    sprintf(pid, "%d", getpid());
-    strcat(final,pid);
-}
 
 int main(int argc, char* argv[])
 {
     char final[50];
-    create_fifo(final);
+    create_name_fifo(final, getpid());
     printf("%s \n", final);
 
     if (argc != 6) {
@@ -49,7 +42,7 @@ int main(int argc, char* argv[])
     //opens answer(fifo) to recive answer from server
 
     tlv_reply_t reply;
-    read_fifo_answer(USER_FIFO_PATH_PREFIX,&reply);
+    read_fifo_answer(final,&reply);
     printf("ccccccc\n");
 
 
