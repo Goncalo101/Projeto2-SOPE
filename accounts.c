@@ -147,8 +147,6 @@ ret_code_t handle_balance_request(int delay, int id, int *balance)
 
         if(ret == RC_OTHER)
             return RC_OTHER;
-                  printf("sdrdthyu7tgedws\n");
-        printf("balance accountas<fdzgnhfbsdcaxZ %d \n", account.balance);
         *balance = account.balance;
         return RC_OK;
     }

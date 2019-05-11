@@ -24,9 +24,6 @@ void read_fifo_answer(char *path, tlv_reply_t *t)
         fifo = open(path, O_RDONLY );
     }
 
-    // read(fifo, &(t->type), sizeof(op_type_t));
-    // read(fifo, &(t->length), sizeof(uint32_t));
-    // read(fifo, &(t->value), t->length);
 
     printf("------------------------------------------- \n");
     printf("id account %d \n", t->value.header.account_id);
@@ -41,16 +38,16 @@ void read_fifo_answer(char *path, tlv_reply_t *t)
 void read_fifo_server(char *path, tlv_request_t *t)
 {
     int fifo = open(path, O_RDONLY  );
+        printf("fd read: %d\n", fifo);
     while (fifo == -1)
     {
         sleep(1);
         fifo = open(path, O_RDONLY );
     }
 
-    // read(fifo, &(t->type), sizeof(op_type_t));
-    // read(fifo, &(t->length), sizeof(uint32_t));
-    // read(fifo, &(t->value), t->length);
-    read(fifo, t, sizeof(*t));
+    int r = read(fifo, t, sizeof(*t));
+
+    printf("read return: %d \n", r);
     close(fifo);
 
     printf("------------------------------------------- \n");
@@ -64,35 +61,29 @@ void read_fifo_server(char *path, tlv_request_t *t)
 
 void write_fifo_server(char *path, tlv_request_t *to_write)
 {
-    int fifo = open(path, O_WRONLY | O_TRUNC  |O_SYNC);
+    int fifo = open(path, O_WRONLY | O_TRUNC );
+    printf("fd write: %d\n", fifo);
     while (fifo == -1)
     {
         sleep(1);
-        fifo = open(path, O_WRONLY | O_TRUNC |O_SYNC  );
+        fifo = open(path, O_WRONLY | O_TRUNC  );
     }
 
-    // write(fifo, &(to_write->type), sizeof(op_type_t));
-    // write(fifo, &(to_write->length), sizeof(uint32_t));
-    // write(fifo, &(to_write->value), sizeof(to_write->value));
-     write(fifo, to_write, sizeof(*to_write));
+
+    int w = write(fifo, to_write, sizeof(*to_write));
+    printf("write return: %d \n", w);
     close(fifo);
 }
 
 //TODO: update to right struct
 void write_fifo_answer(char *path, tlv_reply_t *to_write)
 {
-     printf("%s\n", path);
-    int fifo = open(path, O_WRONLY | O_TRUNC |O_SYNC  );
+    int fifo = open(path, O_WRONLY | O_TRUNC  );
     while (fifo == -1)
     {
-        fifo = open(path, O_WRONLY | O_TRUNC|O_SYNC );
+        fifo = open(path, O_WRONLY | O_TRUNC);
     }
 
-    printf("d\n");
-
-    // write(fifo, &(to_write->type), sizeof(op_type_t));
-    // write(fifo, &(to_write->length), sizeof(uint32_t));
-    // write(fifo, &(to_write->value), sizeof(to_write->value));
     write(fifo, to_write, sizeof(*to_write));
     close(fifo);
 }

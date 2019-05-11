@@ -15,7 +15,6 @@ int main(int argc, char* argv[])
 {
     char final[50];
     create_name_fifo(final, getpid());
-    printf("%s \n", final);
 
     if (argc != 6) {
         printf("Wrong Usage: user <id> <password> <delay> <operation nr> <list of arguments> \n");
@@ -38,11 +37,10 @@ int main(int argc, char* argv[])
     printf("aaaaa\n");
     //writes to server(fifo) the order
     write_fifo_server(SERVER_FIFO_PATH, &t);
-    printf("bbbbbbb\n");
     //opens answer(fifo) to recive answer from server
 
     tlv_reply_t reply;
-    read_fifo_answer(final,&reply);
+    //read_fifo_answer(final,&reply);
     printf("ccccccc\n");
 
 

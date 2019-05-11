@@ -38,13 +38,12 @@ int main(int argc, char *argv[])
         // reads from server(fifo) info send by user
         tlv_request_t request;
 
-         printf("sdfersgtdfcdxfg\n");
+        printf("a\n");
         read_fifo_server(SERVER_FIFO_PATH, &request);
 
         ret_code_t return_code = 0;
         rep_header_t header;
         tlv_reply_t t;
-
 
         switch (request.type) // TODO: catch return codes
         {
@@ -61,8 +60,9 @@ int main(int argc, char *argv[])
         {
             rep_balance_t balance;
             int balance_nbr = 0;
+            printf("ddd\n");
             handle_balance_request(request.value.header.op_delay_ms,
-                                 request.value.header.account_id, &balance_nbr);
+                                   request.value.header.account_id, &balance_nbr);
             create_balance_struct_a(balance_nbr, &balance);
             t = join_structs_to_send_a(0, &header, &balance, NULL, NULL);
             break;
@@ -88,13 +88,11 @@ int main(int argc, char *argv[])
             break;
         }
         }
-        
+
         // writes answer to user by answer (fifo)
-         printf("aahhhhhhhhhhhhhhhhhhhhhhhhaaaaaaaa\n");
-         char final[50];
-         create_name_fifo(final, request.value.header.pid);
-        write_fifo_answer(final, &t);
-         printf("ddddddddddddd\n");
+        char final[50];
+        create_name_fifo(final, request.value.header.pid);
+       // write_fifo_answer(final, &t);
     }
 
     unlink(SERVER_FIFO_PATH);
