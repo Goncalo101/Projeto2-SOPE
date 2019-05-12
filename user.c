@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 
     //creates fifo that will accomodate answer from server side (answer fifo)
     //TODO: add right name to fifo
-    mkfifo(final, 0644);
+    mkfifo(final, 0660);
 
     printf("aaaaa\n");
     //writes to server(fifo) the order

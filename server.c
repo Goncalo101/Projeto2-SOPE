@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     // TODO: add balconies
 
     // create fifo to send information (server)
-    mkfifo(SERVER_FIFO_PATH, 0644);
+    mkfifo(SERVER_FIFO_PATH, 0660);
 
     // main loop
     while (!shutdown)
