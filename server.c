@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
                 if (return_code == 0) {
                     return_code = create_account(
                         request.value.create.password, request.value.create.balance,
-                        request.value.create.account_id, request.value.header.account_id);
+                        request.value.create.account_id, request.value.header.account_id, request.value.header.op_delay_ms);
                 }
                 create_header_struct_a(request.value.create.account_id, return_code, &header);
                 t = join_structs_to_send_a(0, &header, NULL, NULL, NULL);
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
                 rep_transfer_t transfer;
                 return_code = transfer_money(request.value.header.account_id,
                     request.value.transfer.account_id,
-                    request.value.transfer.amount);
+                    request.value.transfer.amount, request.value.header.op_delay_ms);
                 create_header_struct_a(request.value.header.account_id, return_code, &header);
                 transfer.balance = accounts[request.value.header.account_id].balance;
                 t = join_structs_to_send_a(2, &header, NULL, &transfer, NULL);
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
             {
                 int active;
                 rep_shutdown_t shutdown_str;
-                handle_shutdown(request.value.header.account_id, &shutdown, &active);
+                handle_shutdown(request.value.header.account_id, &shutdown, &active, request.value.header.op_delay_ms);
                 create_shutdown_struct_a(0, &shutdown_str); //TODO:add real numnber of active banks(when threads)
                 t = join_structs_to_send_a(3, &header, NULL, NULL, &shutdown_str);
                 break;
