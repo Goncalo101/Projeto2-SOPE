@@ -92,32 +92,25 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
     return RC_OK;
 }
 
-int get_account_index(uint32_t account_id)
+ret_code_t authenticate_user(int id, int delay, char *password)
 {
-    for (int i = 0; i < MAX_BANK_ACCOUNTS; i++)
-    {
-        if (accounts[i].account_id == account_id)
-            return i;
-    }
-    return -1;
-}
-
-ret_code_t authenticate_user(req_header_t req_header)
-{
+    printf("vgbhunjmk\n");
     int account_index;
-    char hash;
+    char hash[HASH_LEN];
 
-    account_index = get_account_index(req_header.account_id);
-
-    if (account_index == -1)
+      if (account_ids[id] != 1)
         return RC_OTHER;
 
-    create_hash(req_header.password, accounts[account_index].salt, &hash);
+    create_hash(password, accounts[account_index].salt, &hash);
+
+      printf("bbb\n");
 
     if (strcmp(&hash, accounts[account_index].hash) == 0)
         return RC_OK;
     else
         return RC_OTHER;
+
+      printf("aaaaaa\n");
 }
 
 //handle balance request functions
