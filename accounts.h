@@ -15,7 +15,7 @@ void op_delay(int delayMS);
 ret_code_t handle_balance_request(int delay, int id, int* balance);
 ret_code_t handle_shutdown(int id, int *shutdown, int *active_nbr);
 void create_admin_account(char* password);
-int get_account_index(uint32_t account_id);
-ret_code_t authenticate_user(req_header_t req_header);
+
+ret_code_t authenticate_user(int id, int delay, char *password);
 
 #endif /* _ACCOUNTS_H_ */
