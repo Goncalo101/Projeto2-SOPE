@@ -37,12 +37,12 @@ void read_fifo_answer(char *path, tlv_reply_t *t)
 
 void read_fifo_server(char *path, tlv_request_t *t)
 {
-    int fifo = open(path, O_RDONLY  );
+    int fifo = open(path, O_RDONLY);
         printf("fd read: %d\n", fifo);
     while (fifo == -1)
     {
         sleep(1);
-        fifo = open(path, O_RDONLY );
+        fifo = open(path, O_RDONLY);
     }
 
     int r = read(fifo, t, sizeof(*t));

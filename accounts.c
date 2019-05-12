@@ -40,7 +40,7 @@ ret_code_t create_account(char *password, int balance, int new_id, int account_c
 
     bank_account_t account;
 
-    if (account_create_id == 0)
+    if (account_create_id != 0)
         return RC_OP_NALLOW;
 
     if (account_ids[new_id] == 1)
@@ -69,7 +69,7 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
     }
 
     // check if accounts are the same
-    if (account_ids[sender_id] == account_ids[receiver_id])
+    if (sender_id == receiver_id)
     {
         return RC_SAME_ID;
     }
