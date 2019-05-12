@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 {
     if (argc != 3 || atoi(argv[1]) > MAX_BANK_OFFICES)
     {
-       printf("Wrong Usage: server <front office nr (<= %d )> <admin password> \n", MAX_BANK_OFFICES);
+        printf("Wrong Usage: server <front office nr (<= %d )> <admin password> \n", MAX_BANK_OFFICES);
         exit(1);
     }
 
@@ -36,7 +36,6 @@ int main(int argc, char *argv[])
 
         // reads from server(fifo) info send by user
         tlv_request_t request;
-
         read_fifo_server(SERVER_FIFO_PATH, &request);
 
         ret_code_t return_code = 0;
@@ -44,7 +43,7 @@ int main(int argc, char *argv[])
         tlv_reply_t t;
 
         return_code = authenticate_user(request.value.header.account_id, request.value.header.op_delay_ms, request.value.header.password);
-        if(return_code != 0)
+        if (return_code != 0)
         {
             create_header_struct_a(request.value.create.account_id, return_code, &header);
             t = join_structs_to_send_a(0, &header, NULL, NULL, NULL);
@@ -98,7 +97,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        // writes answer to user by answer (fifo)
+        //     // writes answer to user by answer (fifo)
         char final[50];
         create_name_fifo(final, request.value.header.pid);
         write_fifo_answer(final, &t);

@@ -25,7 +25,7 @@ void create_admin_account(char *password)
     account.account_id = 0;
     account.balance = 0;
     strcpy(account.salt, salt);
-    strcpy(account.hash, password); //TODO:add hash
+    strcpy(account.hash, hash); //TODO:add hash
 
     insert_account(account);
     //add log here
@@ -49,7 +49,7 @@ ret_code_t create_account(char *password, int balance, int new_id, int account_c
     account.account_id = new_id;
     account.balance = balance;
     strcpy(account.salt, salt);
-    strcpy(account.hash, password); //TODO:add hash
+    strcpy(account.hash, hash); //TODO:add hash
 
     insert_account(account);
 
@@ -94,23 +94,18 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
 
 ret_code_t authenticate_user(int id, int delay, char *password)
 {
-    printf("vgbhunjmk\n");
-    int account_index;
     char hash[HASH_LEN];
 
-      if (account_ids[id] != 1)
+    if (account_ids[id] != 1)
         return RC_OTHER;
 
-    create_hash(password, accounts[account_index].salt, &hash);
+    create_hash(password, accounts[id].salt, hash);
 
-      printf("bbb\n");
-
-    if (strcmp(&hash, accounts[account_index].hash) == 0)
+    if (strcmp(hash, accounts[id].hash) == 0)
         return RC_OK;
     else
         return RC_OTHER;
 
-      printf("aaaaaa\n");
 }
 
 //handle balance request functions
@@ -138,7 +133,7 @@ ret_code_t handle_balance_request(int delay, int id, int *balance)
         bank_account_t account;
         ret_code_t ret = get_account(id, &account);
 
-        if(ret == RC_OTHER)
+        if (ret == RC_OTHER)
             return RC_OTHER;
         *balance = account.balance;
         return RC_OK;
