@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
         tlv_reply_t t2;
           tlv_reply_t t3;
 
-        switch (p) // TODO: catch return codes
+        switch (request.type) // TODO: catch return codes
         {
         case 0: // create account
         {
