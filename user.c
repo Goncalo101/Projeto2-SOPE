@@ -10,7 +10,6 @@
 #include "types.h"
 #include "userflag.h"
 
-
 int main(int argc, char* argv[])
 {
     char final[50];
@@ -42,7 +41,6 @@ int main(int argc, char* argv[])
     tlv_reply_t reply;
     //read_fifo_answer(final,&reply);
     printf("ccccccc\n");
-
 
     unlink(final);
     return 0;

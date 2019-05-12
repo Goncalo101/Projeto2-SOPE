@@ -23,5 +23,4 @@ int verify_balance(int balance);
 int verify_new_account_args(char* arguments);
 int verify_transfer_arguments(char* arguments);
 
-
 #endif /* _USERFLAG_H_ */
