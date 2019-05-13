@@ -24,60 +24,45 @@ void read_fifo_answer(char* path, tlv_reply_t* t)
     }
 
     printf("------------------------------------------- \n");
-    printf("id account %d \n", t->value.header.account_id);
-    printf("balance transfer account %d \n", t->value.transfer.balance);
-    printf("balance %d \n", t->value.balance.balance);
+    printf("id account %u \n", t->value.header.account_id);
+    printf("balance transfer account %u \n", t->value.transfer.balance);
+    printf("balance %u \n", t->value.balance.balance);
     printf("------------------------------------------- \n");
 
     read(fifo, t, sizeof(*t));
     close(fifo);
 }
 
-void read_fifo_server(char* path, tlv_request_t* t)
+void read_fifo_server(int fifo, tlv_request_t* t)
 {
-    int fifo = open(path, O_RDONLY);
     printf("fd read: %d\n", fifo);
-    while (fifo == -1) {
-        sleep(1);
-        fifo = open(path, O_RDONLY);
-    }
 
-    int r = read(fifo, t, sizeof(*t));
+    int r = 0;
+    
+    while (r == 0)
+        r = read(fifo, t, sizeof(*t));
 
     printf("read return: %d \n", r);
-    close(fifo);
 
     printf("------------------------------------------- \n");
-    printf("id create account %d \n", t->value.create.account_id);
-    printf("balance create account %d \n", t->value.create.balance);
+    printf("id create account %u \n", t->value.create.account_id);
+    printf("balance create account %u \n", t->value.create.balance);
     printf("pass create account %s \n", t->value.create.password);
-    printf("type %d \n", t->type);
-    printf("lenght %d \n", t->length);
+    printf("type %d \n", (int)t->type);
+    printf("lenght %d \n", (int)t->length);
     printf("------------------------------------------- \n");
 }
 
-void write_fifo_server(char* path, tlv_request_t* to_write)
+void write_fifo_server(int fifo, tlv_request_t* to_write)
 {
-    int fifo = open(path, O_WRONLY | O_TRUNC);
     printf("fd write: %d\n", fifo);
-    while (fifo == -1) {
-        sleep(1);
-        fifo = open(path, O_WRONLY | O_TRUNC);
-    }
 
     int w = write(fifo, to_write, sizeof(*to_write));
     printf("write return: %d \n", w);
-    close(fifo);
 }
 
 //TODO: update to right struct
-void write_fifo_answer(char* path, tlv_reply_t* to_write)
+void write_fifo_answer(int fifo, tlv_reply_t* to_write)
 {
-    int fifo = open(path, O_WRONLY | O_TRUNC);
-    while (fifo == -1) {
-        fifo = open(path, O_WRONLY | O_TRUNC);
-    }
-
     write(fifo, to_write, sizeof(*to_write));
-    close(fifo);
 }
