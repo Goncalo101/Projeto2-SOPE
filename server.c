@@ -29,14 +29,16 @@ int main(int argc, char* argv[])
 
     // create fifo to send information (server)
     mkfifo(SERVER_FIFO_PATH, 0660);
-    int fifo = open(SERVER_FIFO_PATH, O_RDONLY);
+   
 
     // main loop
     while (!shutdown) {
 
         // reads from server(fifo) info send by user
         tlv_request_t request;
+         int fifo = open(SERVER_FIFO_PATH, O_RDONLY);
         read_fifo_server(fifo, &request);
+        close(fifo);
         logRequest(STDOUT_FILENO, getpid(), &request);
 
         ret_code_t return_code = 0;
@@ -101,7 +103,6 @@ int main(int argc, char* argv[])
         // write_fifo_answer(final, &t);
     }
 
-    close(fifo);
     unlink(SERVER_FIFO_PATH);
     return 0;
 }
