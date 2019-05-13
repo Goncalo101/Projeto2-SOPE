@@ -32,12 +32,14 @@ void create_admin_account(char* password)
     strcpy(account.hash, hash); //TODO:add hash
 
     insert_account(account);
-    //add log here
+    
+    //Add log here
+    logAccountCreation(getserverfile(), 0, account);
 }
 
 ret_code_t create_account(char* password, int balance, int new_id, int account_create_id, int delay)
 {
-    op_delay(delay);
+    op_delay(delay, 0);
     char salt[SALT_LEN + 1];
     create_salt(salt);
     char hash[HASH_LEN + 1];
@@ -60,15 +62,15 @@ ret_code_t create_account(char* password, int balance, int new_id, int account_c
 
     //RC_OTHER
 
-    logAccountCreation(getuserfile, 0, account);
-    logAccountCreation(getserverfile, 0, account);
+    //Add log here
+    logAccountCreation(getuserfile(), 0, account);
 
     return RC_OK;
 }
 
 ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t value, int delay)
 {
-    op_delay(delay);
+    op_delay(delay, 0);
     // check if either of the accounts doesn't exist (the sender has to exist so it might not be
     // necessary to check if the sender exists)
     if (account_ids[sender_id] == 0 || account_ids[receiver_id] == 0) {
@@ -98,7 +100,7 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
 
 ret_code_t authenticate_user(int id, int delay, char* password)
 {
-    op_delay(delay);
+    op_delay(delay, 0);
     char hash[HASH_LEN];
 
     if (account_ids[id] != 1)
@@ -124,14 +126,16 @@ ret_code_t get_account(uint32_t account_id, bank_account_t* account)
     }
 }
 
-void op_delay(int delayMS)
+void op_delay(int delayMS, int threadID)
 {
     usleep(delayMS * 1000);
+    logDelay(getserverfile(), threadID, delayMS);
+
 }
 
 ret_code_t handle_balance_request(int delay, int id, int* balance)
 {
-    op_delay(delay); //TODO:test functionality
+    op_delay(delay,0); //TODO:test functionality
     if (id != ADMIN_ACCOUNT_ID) {
         bank_account_t account;
         ret_code_t ret = get_account(id, &account);
@@ -147,7 +151,7 @@ ret_code_t handle_balance_request(int delay, int id, int* balance)
 
 ret_code_t handle_shutdown(int id, int* shutdown, int* active_nbr, int delay)
 {
-    op_delay(delay);
+    op_delay(delay,0);
     if (id == 0) {
         *shutdown = 1;
         *active_nbr = 1; //TODO:add real number of active threads
