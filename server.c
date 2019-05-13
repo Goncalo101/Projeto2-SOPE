@@ -12,7 +12,7 @@
 #include "sope.h"
 #include "types.h"
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     if (argc != 3 || atoi(argv[1]) > MAX_BANK_OFFICES)
     {
@@ -23,20 +23,20 @@ int main(int argc, char* argv[])
     uint32_t shutdown = 0;
 
     // create admin account
-    create_admin_account(argv[2]);
+    // create_admin_account(argv[2]);
 
     // TODO: add balconies
 
     // create fifo to send information (server)
     mkfifo(SERVER_FIFO_PATH, 0660);
-   
 
     // main loop
-    while (!shutdown) {
+    while (!shutdown)
+    {
 
         // reads from server(fifo) info send by user
         tlv_request_t request;
-         int fifo = open(SERVER_FIFO_PATH, O_RDONLY);
+        int fifo = open(SERVER_FIFO_PATH, O_RDONLY);
         read_fifo_server(fifo, &request);
         close(fifo);
         logRequest(STDOUT_FILENO, getpid(), &request);
@@ -50,12 +50,15 @@ int main(int argc, char* argv[])
         {
             create_header_struct_a(request.value.create.account_id, return_code, &header);
             t = join_structs_to_send_a(0, &header, NULL, NULL, NULL);
-        } else {
+        }
+        else
+        {
             switch (request.type) // TODO: catch return codes
             {
             case 0: // create account
             {
-                if (return_code == 0) {
+                if (return_code == 0)
+                {
                     return_code = create_account(
                         request.value.create.password, request.value.create.balance,
                         request.value.create.account_id, request.value.header.account_id, request.value.header.op_delay_ms);
@@ -69,7 +72,7 @@ int main(int argc, char* argv[])
                 rep_balance_t balance;
                 uint32_t balance_nbr = 0;
                 handle_balance_request(request.value.header.op_delay_ms,
-                    request.value.header.account_id, &balance_nbr);
+                                       request.value.header.account_id, &balance_nbr);
                 create_balance_struct_a(balance_nbr, &balance);
                 t = join_structs_to_send_a(1, &header, &balance, NULL, NULL);
                 break;
@@ -78,8 +81,8 @@ int main(int argc, char* argv[])
             {
                 rep_transfer_t transfer;
                 return_code = transfer_money(request.value.header.account_id,
-                    request.value.transfer.account_id,
-                    request.value.transfer.amount, request.value.header.op_delay_ms);
+                                             request.value.transfer.account_id,
+                                             request.value.transfer.amount, request.value.header.op_delay_ms);
                 create_header_struct_a(request.value.header.account_id, return_code, &header);
                 transfer.balance = accounts[request.value.header.account_id].balance;
                 t = join_structs_to_send_a(2, &header, NULL, &transfer, NULL);
@@ -100,7 +103,9 @@ int main(int argc, char* argv[])
         //     // writes answer to user by answer (fifo)
         char final[50];
         create_name_fifo(final, request.value.header.pid);
-        // write_fifo_answer(final, &t);
+        int fd = open(final,O_WRONLY);
+        logReply(STDOUT_FILENO, getpid(), &t);
+        write_fifo_answer(fd, &t);
     }
 
     unlink(SERVER_FIFO_PATH);

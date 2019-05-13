@@ -11,18 +11,20 @@
 #include "userflag.h"
 #include "sope.h"
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     char final[50];
     create_name_fifo(final, getpid());
 
-    if (argc != 6) {
+    if (argc != 6)
+    {
         printf("Wrong Usage: user <id> <password> <delay> <operation nr> <list of arguments> \n");
         exit(1);
     }
 
     User_flag flag;
-    if (addflag(argv, &flag) != 0) {
+    if (addflag(argv, &flag) != 0)
+    {
         printf("wrong arguments\n");
         exit(0);
     }
@@ -42,9 +44,9 @@ int main(int argc, char* argv[])
     //opens answer(fifo) to recive answer from server
 
     tlv_reply_t reply;
-    // read_fifo_answer(final, &reply);
+    read_fifo_answer(final, &reply);
+    logReply(STDOUT_FILENO, getpid(), &reply);
     printf("ccccccc\n");
-
 
     unlink(final);
     return 0;
