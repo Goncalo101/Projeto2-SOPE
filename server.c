@@ -12,6 +12,8 @@
 #include "sope.h"
 #include "types.h"
 
+static int serverfd;
+
 int main(int argc, char* argv[])
 {
     if (argc != 3 || atoi(argv[1]) > MAX_BANK_OFFICES)
@@ -19,6 +21,8 @@ int main(int argc, char* argv[])
         printf("Wrong Usage: server <front office nr (<= %d )> <admin password> \n", MAX_BANK_OFFICES);
         exit(1);
     }
+
+    serverfd = open("slog.txt", O_WRONLY | O_CREAT | O_EXCL, 0644);
 
     int shutdown = 0;
 
@@ -101,4 +105,8 @@ int main(int argc, char* argv[])
 
     unlink(SERVER_FIFO_PATH);
     return 0;
+}
+
+int getserverfile(){
+    return serverfd;
 }

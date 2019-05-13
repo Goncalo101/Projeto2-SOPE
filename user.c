@@ -10,6 +10,8 @@
 #include "types.h"
 #include "userflag.h"
 
+static int userfd;
+
 int main(int argc, char* argv[])
 {
     char final[50];
@@ -25,6 +27,8 @@ int main(int argc, char* argv[])
         printf("wrong arguments\n");
         exit(0);
     }
+
+    userfd = open("ulog.txt", O_WRONLY | O_CREAT | O_EXCL, 0644);
 
     //printTest(flag);
     tlv_request_t t = join_structs_to_send(flag);
@@ -44,4 +48,9 @@ int main(int argc, char* argv[])
 
     unlink(final);
     return 0;
+}
+
+int getuserfile()
+{
+    return userfd;
 }

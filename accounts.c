@@ -1,8 +1,10 @@
 #include "accounts.h"
 
 #include "crypto.h"
+#include "filedescrp.h"
 #include <stdio.h>
 #include <string.h>
+
 
 static int account_ids[MAX_BANK_ACCOUNTS] = {0};
 
@@ -58,7 +60,9 @@ ret_code_t create_account(char* password, int balance, int new_id, int account_c
 
     //RC_OTHER
 
-    //add log here
+    logAccountCreation(getuserfile, 0, account);
+    logAccountCreation(getserverfile, 0, account);
+
     return RC_OK;
 }
 
