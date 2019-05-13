@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static int account_ids[MAX_BANK_ACCOUNTS] = {0};
+static uint32_t account_ids[MAX_BANK_ACCOUNTS] = {0};
 
 void insert_account(bank_account_t account)
 {
@@ -33,7 +33,7 @@ void create_admin_account(char* password)
     //add log here
 }
 
-ret_code_t create_account(char* password, int balance, int new_id, int account_create_id, int delay)
+ret_code_t create_account(char* password, uint32_t balance, uint32_t new_id, uint32_t account_create_id, uint32_t delay)
 {
     op_delay(delay);
     char salt[SALT_LEN + 1];
@@ -62,7 +62,7 @@ ret_code_t create_account(char* password, int balance, int new_id, int account_c
     return RC_OK;
 }
 
-ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t value, int delay)
+ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t value, uint32_t delay)
 {
     op_delay(delay);
     // check if either of the accounts doesn't exist (the sender has to exist so it might not be
@@ -92,7 +92,7 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
     return RC_OK;
 }
 
-ret_code_t authenticate_user(int id, int delay, char* password)
+ret_code_t authenticate_user(uint32_t id, uint32_t delay, char* password)
 {
     op_delay(delay);
     char hash[HASH_LEN];
@@ -120,12 +120,12 @@ ret_code_t get_account(uint32_t account_id, bank_account_t* account)
     }
 }
 
-void op_delay(int delayMS)
+void op_delay(uint32_t delayMS)
 {
     usleep(delayMS * 1000);
 }
 
-ret_code_t handle_balance_request(int delay, int id, int* balance)
+ret_code_t handle_balance_request(uint32_t delay, uint32_t id, uint32_t* balance)
 {
     op_delay(delay); //TODO:test functionality
     if (id != ADMIN_ACCOUNT_ID) {
@@ -141,7 +141,7 @@ ret_code_t handle_balance_request(int delay, int id, int* balance)
     }
 }
 
-ret_code_t handle_shutdown(int id, int* shutdown, int* active_nbr, int delay)
+ret_code_t handle_shutdown(uint32_t id, uint32_t* shutdown, uint32_t* active_nbr, uint32_t delay)
 {
     op_delay(delay);
     if (id == 0) {
@@ -150,15 +150,4 @@ ret_code_t handle_shutdown(int id, int* shutdown, int* active_nbr, int delay)
         return RC_OK;
     } else
         return RC_OP_NALLOW;
-}
-
-//test
-void show_bank_account(int id)
-{
-    bank_account_t test = accounts[id];
-    printf("%d\n", test.account_id);
-    printf("%d\n", test.balance);
-    printf("%s\n", test.hash);
-    printf("%s\n", test.salt);
-    printf("%d\n", account_ids[id]);
 }

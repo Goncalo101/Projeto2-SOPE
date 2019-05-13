@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
         exit(1);
     }
 
-    int shutdown = 0;
+    uint32_t shutdown = 0;
 
     // create admin account
     create_admin_account(argv[2]);
@@ -29,13 +29,15 @@ int main(int argc, char* argv[])
 
     // create fifo to send information (server)
     mkfifo(SERVER_FIFO_PATH, 0660);
+    int fifo = open(SERVER_FIFO_PATH, O_RDONLY);
 
     // main loop
     while (!shutdown) {
 
         // reads from server(fifo) info send by user
         tlv_request_t request;
-        read_fifo_server(SERVER_FIFO_PATH, &request);
+        read_fifo_server(fifo, &request);
+        logRequest(STDOUT_FILENO, getpid(), &request);
 
         ret_code_t return_code = 0;
         rep_header_t header;
@@ -63,7 +65,7 @@ int main(int argc, char* argv[])
             case 1: // balance check
             {
                 rep_balance_t balance;
-                int balance_nbr = 0;
+                uint32_t balance_nbr = 0;
                 handle_balance_request(request.value.header.op_delay_ms,
                     request.value.header.account_id, &balance_nbr);
                 create_balance_struct_a(balance_nbr, &balance);
@@ -83,7 +85,7 @@ int main(int argc, char* argv[])
             }
             case 3: // shutdown
             {
-                int active;
+                uint32_t active;
                 rep_shutdown_t shutdown_str;
                 handle_shutdown(request.value.header.account_id, &shutdown, &active, request.value.header.op_delay_ms);
                 create_shutdown_struct_a(0, &shutdown_str); //TODO:add real numnber of active banks(when threads)
@@ -99,6 +101,7 @@ int main(int argc, char* argv[])
         write_fifo_answer(final, &t);
     }
 
+    close(fifo);
     unlink(SERVER_FIFO_PATH);
     return 0;
 }

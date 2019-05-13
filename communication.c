@@ -33,19 +33,13 @@ void read_fifo_answer(char* path, tlv_reply_t* t)
     close(fifo);
 }
 
-void read_fifo_server(char* path, tlv_request_t* t)
+void read_fifo_server(int fifo, tlv_request_t* t)
 {
-    int fifo = open(path, O_RDONLY);
     printf("fd read: %d\n", fifo);
-    while (fifo == -1) {
-        sleep(1);
-        fifo = open(path, O_RDONLY);
-    }
 
     int r = read(fifo, t, sizeof(*t));
 
     printf("read return: %d \n", r);
-    close(fifo);
 
     printf("------------------------------------------- \n");
     printf("id create account %d \n", t->value.create.account_id);
@@ -58,11 +52,11 @@ void read_fifo_server(char* path, tlv_request_t* t)
 
 void write_fifo_server(char* path, tlv_request_t* to_write)
 {
-    int fifo = open(path, O_WRONLY | O_TRUNC);
+    int fifo = open(path, O_WRONLY);
     printf("fd write: %d\n", fifo);
     while (fifo == -1) {
         sleep(1);
-        fifo = open(path, O_WRONLY | O_TRUNC);
+        fifo = open(path, O_WRONLY);
     }
 
     int w = write(fifo, to_write, sizeof(*to_write));

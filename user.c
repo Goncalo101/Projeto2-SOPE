@@ -9,6 +9,7 @@
 #include "serverfifoaux.h"
 #include "types.h"
 #include "userflag.h"
+#include "sope.h"
 
 int main(int argc, char* argv[])
 {
@@ -28,6 +29,7 @@ int main(int argc, char* argv[])
 
     //printTest(flag);
     tlv_request_t t = join_structs_to_send(flag);
+    logRequest(STDOUT_FILENO, getpid(), &t);
 
     //creates fifo that will accomodate answer from server side (answer fifo)
     //TODO: add right name to fifo
@@ -35,11 +37,11 @@ int main(int argc, char* argv[])
 
     printf("aaaaa\n");
     //writes to server(fifo) the order
-    //write_fifo_server(SERVER_FIFO_PATH, &t);
+    write_fifo_server(SERVER_FIFO_PATH, &t);
     //opens answer(fifo) to recive answer from server
 
     tlv_reply_t reply;
-    //read_fifo_answer(final,&reply);
+    read_fifo_answer(final,&reply);
     printf("ccccccc\n");
 
     unlink(final);

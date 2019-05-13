@@ -7,21 +7,21 @@
 
 /* verifications to arguments*/
 //-----------------------------------------------------------------------------------
-int verify_id(int id) { return (id < MAX_BANK_ACCOUNTS && id >= 1); }
+int verify_id(uint32_t id) { return (id < MAX_BANK_ACCOUNTS && id >= 1); }
 
 int verify_pass_len(char* pass)
 {
-    int l = strlen(pass);
+    size_t l = strlen(pass);
     return (l < MAX_PASSWORD_LEN && l > MIN_PASSWORD_LEN);
 }
 
-int verify_opnumber(int opnumber) { return (opnumber <= 4 && opnumber > -1); }
+int verify_opnumber(uint32_t opnumber) { return (opnumber <= 4 && opnumber > -1); }
 
-int verify_balance(int balance) { return (balance > MIN_BALANCE && balance < MAX_BALANCE); }
+int verify_balance(uint32_t balance) { return (balance > MIN_BALANCE && balance < MAX_BALANCE); }
 
 int verify_transfer_arguments(char* arguments)
 {
-    int id_dest, amount;
+    uint32_t id_dest, amount;
     id_dest = amount = 0;
     sscanf(arguments, "%d %d ", &id_dest, &amount);
 
@@ -30,7 +30,7 @@ int verify_transfer_arguments(char* arguments)
 
 int verify_new_account_args(char* arguments)
 {
-    int id, balance;
+    uint32_t id, balance;
     id = balance = 0;
     char password[100 + 1];
     sscanf(arguments, "%d %d %s", &id, &balance, password);
