@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
         //     // writes answer to user by answer (fifo)
         char final[50];
         create_name_fifo(final, request.value.header.pid);
-        write_fifo_answer(final, &t);
+        // write_fifo_answer(final, &t);
     }
 
     close(fifo);

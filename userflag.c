@@ -23,7 +23,7 @@ int verify_transfer_arguments(char* arguments)
 {
     uint32_t id_dest, amount;
     id_dest = amount = 0;
-    sscanf(arguments, "%d %d ", &id_dest, &amount);
+    sscanf(arguments, "%u %u", &id_dest, &amount);
 
     return (verify_balance(amount) && verify_id(id_dest));
 }
@@ -33,7 +33,7 @@ int verify_new_account_args(char* arguments)
     uint32_t id, balance;
     id = balance = 0;
     char password[100 + 1];
-    sscanf(arguments, "%d %d %s", &id, &balance, password);
+    sscanf(arguments, "%u %u %s", &id, &balance, password);
 
     return (verify_balance(balance) && verify_id(id) && verify_pass_len(password));
 }

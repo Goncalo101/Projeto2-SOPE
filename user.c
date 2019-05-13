@@ -34,15 +34,17 @@ int main(int argc, char* argv[])
     //creates fifo that will accomodate answer from server side (answer fifo)
     //TODO: add right name to fifo
     mkfifo(final, 0660);
+    int fifo = open(SERVER_FIFO_PATH, O_WRONLY);
 
     printf("aaaaa\n");
     //writes to server(fifo) the order
-    write_fifo_server(SERVER_FIFO_PATH, &t);
+    write_fifo_server(fifo, &t);
     //opens answer(fifo) to recive answer from server
 
     tlv_reply_t reply;
-    read_fifo_answer(final,&reply);
+    // read_fifo_answer(final, &reply);
     printf("ccccccc\n");
+
 
     unlink(final);
     return 0;

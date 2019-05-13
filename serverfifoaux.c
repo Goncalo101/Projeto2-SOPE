@@ -12,11 +12,11 @@ void create_header_struct(User_flag flag, pid_t pid, req_header_t* t)
 
 void create_new_account_struct(User_flag flag, req_create_account_t* create)
 {
-    int id = 0;
-    int balance = 0;
+    uint32_t id = 0;
+    uint32_t balance = 0;
     char password[MAX_PASSWORD_LEN + 1];
 
-    sscanf(flag.arguments, "%d %d %s", &id, &balance, password);
+    sscanf(flag.arguments, "%u %u %s", &id, &balance, password);
     create->account_id = id;
     create->balance = balance;
     strncpy(create->password, password, sizeof(create->password));
@@ -24,10 +24,10 @@ void create_new_account_struct(User_flag flag, req_create_account_t* create)
 
 void create_transfer_struct(User_flag flag, req_transfer_t* transf)
 {
-    int id = 0;
-    int amount = 0;
+    uint32_t id = 0;
+    uint32_t amount = 0;
 
-    sscanf(flag.arguments, "%d %d", &id, &amount);
+    sscanf(flag.arguments, "%u %u", &id, &amount);
     transf->account_id = id;
     transf->amount = amount;
 }
