@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
         exit(1);
     }
 
-    serverfd = open("slog.txt", O_WRONLY | O_CREAT | O_EXCL, 0644);
+    serverfd = open(SERVER_LOGFILE, O_WRONLY | O_CREAT | O_EXCL, 0644);
     uint32_t shutdown = 0;
 
     // create admin account

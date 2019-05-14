@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
         exit(0);
     }
 
-    userfd = open("ulog.txt", O_WRONLY | O_CREAT | O_EXCL, 0644);
+    userfd = open(USER_LOGFILE, O_WRONLY | O_CREAT | O_EXCL, 0644);
 
     //printTest(flag);
     tlv_request_t t = join_structs_to_send(flag);
