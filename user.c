@@ -5,7 +5,6 @@
 #include <unistd.h>
 
 #include "communication.h"
-#include "constants.h"
 #include "serverfifoaux.h"
 #include "sope.h"
 #include "types.h"

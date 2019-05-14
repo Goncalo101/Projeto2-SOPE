@@ -8,7 +8,6 @@
 #include "accounts.h"
 #include "answerfifoaux.h"
 #include "communication.h"
-#include "constants.h"
 #include "sope.h"
 #include "types.h"
 
