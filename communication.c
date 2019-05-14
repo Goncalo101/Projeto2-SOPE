@@ -38,7 +38,7 @@ void read_fifo_server(int fifo, tlv_request_t* t)
     printf("fd read: %d\n", fifo);
 
     int r = 0;
-    
+
     while (r == 0)
         r = read(fifo, t, sizeof(*t));
 

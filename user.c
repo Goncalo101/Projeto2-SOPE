@@ -7,9 +7,9 @@
 #include "communication.h"
 #include "constants.h"
 #include "serverfifoaux.h"
+#include "sope.h"
 #include "types.h"
 #include "userflag.h"
-#include "sope.h"
 
 static int userfd;
 
@@ -49,12 +49,6 @@ int main(int argc, char* argv[])
     // read_fifo_answer(final, &reply);
     printf("ccccccc\n");
 
-
     unlink(final);
     return 0;
-}
-
-int getuserfile()
-{
-    return userfd;
 }

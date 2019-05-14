@@ -16,8 +16,7 @@ static int serverfd;
 
 int main(int argc, char* argv[])
 {
-    if (argc != 3 || atoi(argv[1]) > MAX_BANK_OFFICES)
-    {
+    if (argc != 3 || atoi(argv[1]) > MAX_BANK_OFFICES) {
         printf("Wrong Usage: server <front office nr (<= %d )> <admin password> \n", MAX_BANK_OFFICES);
         exit(1);
     }
@@ -26,7 +25,7 @@ int main(int argc, char* argv[])
     uint32_t shutdown = 0;
 
     // create admin account
-    create_admin_account(argv[2]);
+    create_admin_account(argv[2], serverfd);
 
     // TODO: add balconies
 
@@ -46,9 +45,8 @@ int main(int argc, char* argv[])
         rep_header_t header;
         tlv_reply_t t;
 
-        return_code = authenticate_user(request.value.header.account_id, request.value.header.op_delay_ms, request.value.header.password);
-        if (return_code != 0)
-        {
+        return_code = authenticate_user(request.value.header.account_id, request.value.header.op_delay_ms, request.value.header.password, serverfd);
+        if (return_code != 0) {
             create_header_struct_a(request.value.create.account_id, return_code, &header);
             t = join_structs_to_send_a(0, &header, NULL, NULL, NULL);
         } else {
@@ -59,7 +57,7 @@ int main(int argc, char* argv[])
                 if (return_code == 0) {
                     return_code = create_account(
                         request.value.create.password, request.value.create.balance,
-                        request.value.create.account_id, request.value.header.account_id, request.value.header.op_delay_ms);
+                        request.value.create.account_id, request.value.header.account_id, request.value.header.op_delay_ms, serverfd);
                 }
                 create_header_struct_a(request.value.create.account_id, return_code, &header);
                 t = join_structs_to_send_a(0, &header, NULL, NULL, NULL);
@@ -70,7 +68,7 @@ int main(int argc, char* argv[])
                 rep_balance_t balance;
                 uint32_t balance_nbr = 0;
                 handle_balance_request(request.value.header.op_delay_ms,
-                    request.value.header.account_id, &balance_nbr);
+                    request.value.header.account_id, &balance_nbr, serverfd);
                 create_balance_struct_a(balance_nbr, &balance);
                 t = join_structs_to_send_a(1, &header, &balance, NULL, NULL);
                 break;
@@ -80,7 +78,7 @@ int main(int argc, char* argv[])
                 rep_transfer_t transfer;
                 return_code = transfer_money(request.value.header.account_id,
                     request.value.transfer.account_id,
-                    request.value.transfer.amount, request.value.header.op_delay_ms);
+                    request.value.transfer.amount, request.value.header.op_delay_ms, serverfd);
                 create_header_struct_a(request.value.header.account_id, return_code, &header);
                 transfer.balance = accounts[request.value.header.account_id].balance;
                 t = join_structs_to_send_a(2, &header, NULL, &transfer, NULL);
@@ -90,7 +88,7 @@ int main(int argc, char* argv[])
             {
                 uint32_t active;
                 rep_shutdown_t shutdown_str;
-                handle_shutdown(request.value.header.account_id, &shutdown, &active, request.value.header.op_delay_ms);
+                handle_shutdown(request.value.header.account_id, &shutdown, &active, request.value.header.op_delay_ms, serverfd);
                 create_shutdown_struct_a(0, &shutdown_str); //TODO:add real numnber of active banks(when threads)
                 t = join_structs_to_send_a(3, &header, NULL, NULL, &shutdown_str);
                 break;
@@ -107,8 +105,4 @@ int main(int argc, char* argv[])
     close(fifo);
     unlink(SERVER_FIFO_PATH);
     return 0;
-}
-
-int getserverfile(){
-    return serverfd;
 }
