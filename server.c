@@ -4,6 +4,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #include "accounts.h"
 #include "answerfifoaux.h"
@@ -12,37 +13,21 @@
 #include "sope.h"
 #include "types.h"
 
-int main(int argc, char *argv[])
+tlv_request_t request_queue[1000];
+uint32_t shutdown = 0;
+int i = 0;
+
+tlv_request_t get_request()
 {
-    if (argc != 3 || atoi(argv[1]) > MAX_BANK_OFFICES)
+    return request_queue[i];
+    i++;
+}
+
+void *operations(void *nr)
+{
+    while (0) //TODO: add shared variable
     {
-        printf("Wrong Usage: server <front office nr (<= %d )> <admin password> \n", MAX_BANK_OFFICES);
-        exit(1);
-    }
-
-    uint32_t shutdown = 0;
-
-    // create admin account
-    create_admin_account(argv[2]);
-
-    // TODO: add balconies
-
-    // create fifo to send information (server)
-    mkfifo(SERVER_FIFO_PATH, 0666);
-
-    // reads from server(fifo) info send by user
-    tlv_request_t request;
-    int fifo = open(SERVER_FIFO_PATH, O_RDONLY);
-    int fifo_write = open(SERVER_FIFO_PATH, O_WRONLY);
-
-    printf("fifo %d, fifo_write %d\n", fifo, fifo_write);
-
-    // main loop
-    while (!shutdown)
-    {
-        read_fifo_server(fifo, &request);
-        logRequest(STDOUT_FILENO, getpid(), &request);
-
+        tlv_request_t request = get_request();
         ret_code_t return_code = 0;
         rep_header_t header;
         tlv_reply_t t;
@@ -105,11 +90,53 @@ int main(int argc, char *argv[])
         //     // writes answer to user by answer (fifo)
         char final[50];
         create_name_fifo(final, request.value.header.pid);
-        int fd = open(final,O_WRONLY);
-        logReply(STDOUT_FILENO, getpid(), &t);
+        int fd = open(final, O_WRONLY);
+        logReply(STDOUT_FILENO, 0, &t);
         write_fifo_answer(fd, &t);
     }
 
+    return NULL;
+}
+
+int main(int argc, char *argv[])
+{
+    if (argc != 3 || atoi(argv[1]) > MAX_BANK_OFFICES)
+    {
+        printf("Wrong Usage: server <front office nr (<= %d )> <admin password> \n", MAX_BANK_OFFICES);
+        exit(1);
+    }
+
+    uint32_t shutdown = 0;
+    int nbr_balconies = atoi(argv[1]);
+
+    mkfifo(SERVER_FIFO_PATH, 0660);
+
+    int fifo = open(SERVER_FIFO_PATH, O_RDONLY);
+    int fifo_write = open(SERVER_FIFO_PATH, O_WRONLY);
+
+    //TODO: verify bankaccount numbers doesnt exceed maximum
+    pthread_t tidf[nbr_balconies];
+    int ids[nbr_balconies];
+
+    tlv_request_t request;
+
+    for (int k = 0; k < nbr_balconies; k++)
+    {
+        ids[k] = k + 1;
+        pthread_create(&tidf[k], NULL, operations, &ids[k]);
+    }
+
+    while (!shutdown)
+    {
+        read_fifo_server(fifo, &request);
+        logRequest(STDOUT_FILENO, getpid(), &request);
+    }
+
+    for (int k = 0; k < nbr_balconies; k++)
+    {
+        pthread_join(tidf[k], NULL);
+    }
+   
     unlink(SERVER_FIFO_PATH);
     return 0;
 }

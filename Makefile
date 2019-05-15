@@ -14,7 +14,7 @@ user: $(USR) $(COMN)
 	$(CC) -o $@ $^ $(CFLAGS)
 
 server:  $(SRV) $(COMN) 
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) -lpthread
 
 clean:
 	rm -f *.o user server /tmp/secure* /tmp/pipe*
