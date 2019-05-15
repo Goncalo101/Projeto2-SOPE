@@ -14,15 +14,17 @@ static int userfd;
 
 int main(int argc, char *argv[])
 {
-    char final[50];
-    create_name_fifo(final, getpid());
-
     if (argc != 6)
     {
         printf("Wrong Usage: user <id> <password> <delay> <operation nr> <list of arguments> \n");
         exit(1);
     }
 
+    //--OPEN LOG FILE ---------------------
+    userfd = open(USER_LOGFILE, O_WRONLY | O_CREAT | O_EXCL, 0644);
+    //-------------------------------------
+
+    //--PROCESS ARGUMENTS--------------
     User_flag flag;
     if (addflag(argv, &flag) != 0)
     {
@@ -30,27 +32,32 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
-    userfd = open(USER_LOGFILE, O_WRONLY | O_CREAT | O_EXCL, 0644);
-
-    //printTest(flag);
     tlv_request_t t = join_structs_to_send(flag);
     logRequest(STDOUT_FILENO, getpid(), &t);
+    //-------------------------------------
 
-    //creates fifo that will accomodate answer from server side (answer fifo)
-    //TODO: add right name to fifo
+    //--CREATE ANSWER FIFO----------------
+    char final[50];
+    create_name_fifo(final, getpid());
     mkfifo(final, 0660);
-    int fifo = open(SERVER_FIFO_PATH, O_WRONLY);
+    //-------------------------------------
 
-    printf("aaaaa\n");
-    //writes to server(fifo) the order
-    write_fifo_server(fifo, &t);
-    //opens answer(fifo) to recive answer from server
+    //--WRITE REQUEST FROM USER TO SERVER -----
+    int fifo_server_write = open(SERVER_FIFO_PATH, O_WRONLY);
+    write_fifo_server(fifo_server_write, &t);
+    //-------------------------------------
 
+    //--READ REPLY FROM SERVER TO USER---------
     tlv_reply_t reply;
-    read_fifo_answer(final, &reply);
+    int fifo_answer_read = open(final, O_RDONLY);
+    int fifo_answer_write = open(final, O_WRONLY);
+    read_fifo_answer(fifo_answer_read, &reply);
     logReply(STDOUT_FILENO, getpid(), &reply);
-    printf("ccccccc\n");
+    //-------------------------------------
 
+
+    close(fifo_answer_read);
+    close(fifo_answer_write);
     unlink(final);
     return 0;
 }

@@ -103,14 +103,14 @@ ret_code_t authenticate_user(uint32_t id, uint32_t delay, char* password, int fi
     char hash[HASH_LEN];
 
     if (account_ids[id] != 1)
-        return RC_OTHER;
+        return RC_LOGIN_FAIL;
 
     create_hash(password, accounts[id].salt, hash);
 
     if (strcmp(hash, accounts[id].hash) == 0)
         return RC_OK;
     else
-        return RC_OTHER;
+        return RC_LOGIN_FAIL;
 }
 
 //handle balance request functions
