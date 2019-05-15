@@ -9,18 +9,21 @@
 #include "accounts.h"
 #include "answerfifoaux.h"
 #include "communication.h"
+#include "linked_list.h"
 #include "sope.h"
 #include "types.h"
 
-tlv_request_t request_queue[1000];
+static node_t *request_queue;
 uint32_t shutdown = 0;
 int i = 0;
 static int serverfd;
 
 tlv_request_t get_request()
 {
-    return request_queue[i];
-    i++;
+    tlv_request_t request = request_queue->val;
+    pop(&request_queue);
+    
+    return request;
 }
 
 void *operations(void *nr)
