@@ -138,13 +138,15 @@ int main(int argc, char *argv[])
         pthread_create(&tidf[k], NULL, operations, &ids[k]);
     }
 
+    request_queue = malloc(sizeof(node_t));
+
     tlv_request_t request;
     while (!shutdown)
     {
         sem_wait(&empty);
         read_fifo_server(fifo_server_read, &request);
         logRequest(STDOUT_FILENO, getpid(), &request);
-        //add to queue
+        push(request_queue, request);
         sem_post(&full);
     }
 
