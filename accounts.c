@@ -17,9 +17,9 @@ void insert_account(bank_account_t account)
 
 void create_admin_account(char* password)
 {
-    char salt[SALT_LEN + 1];
+    char salt[SALT_LEN + 1] = "asdasdasd";
     create_salt(salt);
-    char hash[HASH_LEN + 1];
+    char hash[HASH_LEN + 1] = "asdasdasd";
     create_hash(password, salt, hash); //TODO:fix bug in sha256sum
 
     bank_account_t account;
@@ -36,9 +36,9 @@ void create_admin_account(char* password)
 ret_code_t create_account(char* password, uint32_t balance, uint32_t new_id, uint32_t account_create_id, uint32_t delay)
 {
     op_delay(delay);
-    char salt[SALT_LEN + 1];
+    char salt[SALT_LEN + 1] = "asdasdasd";
     create_salt(salt);
-    char hash[HASH_LEN + 1];
+    char hash[HASH_LEN + 1] = "asdasdasd";
     create_hash(password, salt, hash); //TODO:fix bug in sha256sum
 
     bank_account_t account;

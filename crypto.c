@@ -11,7 +11,7 @@
 /*generate salt*/
 //--------------------------------------------------------------------------------------
 static const char alphanum[] = "0123456789"
-                               "abcdefghijklmnopqrstuvwxyz";
+                               "abcdef";
 
 int stringLength = sizeof(alphanum) - 1;
 
@@ -34,7 +34,8 @@ void create_salt(char* salt)
 
 void create_hash(char* pass, char* salt, char* hash)
 {
-    char tohash[HASH_LEN + SALT_LEN + 1];
+    char tohash[MAX_PASSWORD_LEN + SALT_LEN + 1];
+    printf("pass: '%s', salt: '%s'\n", pass, salt);
     strcpy(tohash, pass);
     strncat(tohash, salt, strlen(salt));
     sha256(tohash, hash);
@@ -42,23 +43,33 @@ void create_hash(char* pass, char* salt, char* hash)
 
 void sha256(const char* file_name, char* result)
 {
-    int fd[2];
+    // in and out from the perspective of the co-process
+    int fd_in[2];
+    int fd_out[2];
     pid_t pid;
-    pipe(fd);
+
+    pipe(fd_in);
+    pipe(fd_out);
 
     pid = fork();
 
     if (pid == 0) {
-        dup2(fd[WRITE], STDOUT_FILENO);
-        close(fd[READ]);
+        close(fd_out[READ]);
+        close(fd_in[WRITE]);
+        dup2(fd_out[WRITE], STDOUT_FILENO);
+        dup2(fd_in[READ], STDIN_FILENO);
 
-        char command[BUFFER_SIZE];
-        sprintf(command, "echo -n %s | sha256sum", file_name);
-        system(command);
+        execlp("sha256sum", "sha256sum", NULL);
 
     } else {
-        close(fd[WRITE]);
+        close(fd_out[WRITE]);
+        close(fd_in[READ]);
         memset(result, 0, HASH_LEN * sizeof(char));
-        read(fd[READ], result, SHA256_SIZE * sizeof(char));
+        
+        write(fd_in[WRITE], file_name, strlen(file_name));
+        close(fd_in[WRITE]);
+
+        read(fd_out[READ], result, SHA256_SIZE * sizeof(char));
+        printf("sha256sum: %s\n", result);
     }
 }
