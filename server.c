@@ -29,14 +29,18 @@ int main(int argc, char* argv[])
     // TODO: add balconies
 
     // create fifo to send information (server)
-    mkfifo(SERVER_FIFO_PATH, 0660);
+    mkfifo(SERVER_FIFO_PATH, 0666);
+
+    // reads from server(fifo) info send by user
+    tlv_request_t request;
     int fifo = open(SERVER_FIFO_PATH, O_RDONLY);
+    int fifo_write = open(SERVER_FIFO_PATH, O_WRONLY);
+
+    printf("fifo %d, fifo_write %d\n", fifo, fifo_write);
 
     // main loop
-    while (!shutdown) {
-
-        // reads from server(fifo) info send by user
-        tlv_request_t request;
+    while (!shutdown)
+    {
         read_fifo_server(fifo, &request);
         logRequest(STDOUT_FILENO, getpid(), &request);
 
@@ -48,12 +52,15 @@ int main(int argc, char* argv[])
         if (return_code != 0) {
             create_header_struct_a(request.value.create.account_id, return_code, &header);
             t = join_structs_to_send_a(0, &header, NULL, NULL, NULL);
-        } else {
+        }
+        else
+        {
             switch (request.type) // TODO: catch return codes
             {
             case 0: // create account
             {
-                if (return_code == 0) {
+                if (return_code == 0)
+                {
                     return_code = create_account(
                         request.value.create.password, request.value.create.balance,
                         request.value.create.account_id, request.value.header.account_id, request.value.header.op_delay_ms, serverfd);
@@ -98,10 +105,11 @@ int main(int argc, char* argv[])
         //     // writes answer to user by answer (fifo)
         char final[50];
         create_name_fifo(final, request.value.header.pid);
-        // write_fifo_answer(final, &t);
+        int fd = open(final,O_WRONLY);
+        logReply(STDOUT_FILENO, getpid(), &t);
+        write_fifo_answer(fd, &t);
     }
 
-    close(fifo);
     unlink(SERVER_FIFO_PATH);
     return 0;
 }
