@@ -17,8 +17,7 @@ void create_name_fifo(char *final, pid_t pid)
 
 void read_fifo_answer(int fifo, tlv_reply_t *t)
 {    
-    read(fifo, t, sizeof(*t));
-    close(fifo);
+    read(fifo, t, sizeof(tlv_reply_t));
 }
 
 void read_fifo_server(int fifo, tlv_request_t *t)
@@ -38,5 +37,5 @@ void write_fifo_server(int fifo, tlv_request_t *to_write)
 
 void write_fifo_answer(int fifo, tlv_reply_t *to_write)
 {
-    write(fifo, to_write, sizeof(*to_write));
+    write(fifo, to_write, sizeof(tlv_reply_t));
 }

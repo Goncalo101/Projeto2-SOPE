@@ -39,12 +39,14 @@ int main(int argc, char *argv[])
     //--CREATE ANSWER FIFO----------------
     char final[50];
     create_name_fifo(final, getpid());
+    printf("%s\n", final);
     mkfifo(final, 0660);
     //-------------------------------------
 
     //--WRITE REQUEST FROM USER TO SERVER -----
     int fifo_server_write = open(SERVER_FIFO_PATH, O_WRONLY);
     write_fifo_server(fifo_server_write, &t);
+    close(fifo_server_write);
     //-------------------------------------
 
     //--READ REPLY FROM SERVER TO USER---------

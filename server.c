@@ -97,13 +97,12 @@ void *operations(void *nr)
             }
         }
 
-        //     // writes answer to user by answer (fifo)
+        // writes answer to user by answer (fifo)
         char final[50];
         create_name_fifo(final, request.value.header.pid);
         int fd = open(final, O_WRONLY);
         logReply(STDOUT_FILENO, 0, &t);
         write_fifo_answer(fd, &t);
-
         sem_post(&empty);
     }
 
@@ -145,7 +144,9 @@ int main(int argc, char *argv[])
     {
         sem_wait(&empty);
         read_fifo_server(fifo_server_read, &request);
+        printf("aaaaaaa\n");
         logRequest(STDOUT_FILENO, getpid(), &request);
+                printf("bbbbbbb\n");
         push(request_queue, request);
         sem_post(&full);
     }
