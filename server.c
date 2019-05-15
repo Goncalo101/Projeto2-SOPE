@@ -27,6 +27,9 @@ tlv_request_t get_request()
     tlv_request_t request = request_queue->val;
     pop(&request_queue);
 
+    printf("\e[33mlog request non-main thread\e[39m\n");
+    logRequest(STDOUT_FILENO, 0, &request);
+
     return request;
 }
 
@@ -137,17 +140,22 @@ int main(int argc, char *argv[])
         pthread_create(&tidf[k], NULL, operations, &ids[k]);
     }
 
-    request_queue = malloc(sizeof(node_t));
-
     tlv_request_t request;
     while (!shutdown)
     {
         sem_wait(&empty);
         read_fifo_server(fifo_server_read, &request);
-        printf("aaaaaaa\n");
+        printf("\e[33mlog request main thread\e[39m\n");
         logRequest(STDOUT_FILENO, getpid(), &request);
-                printf("bbbbbbb\n");
-        push(request_queue, request);
+
+        if (request_queue == NULL) {
+            request_queue = malloc(sizeof(node_t));
+            request_queue->val = request;
+            request_queue->next = NULL;
+        } else {
+            push(request_queue, request);
+        }
+
         sem_post(&full);
     }
 
