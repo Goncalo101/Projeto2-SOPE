@@ -5,11 +5,12 @@
 #include <unistd.h>
 
 #include "communication.h"
-#include "constants.h"
 #include "serverfifoaux.h"
+#include "sope.h"
 #include "types.h"
 #include "userflag.h"
-#include "sope.h"
+
+static int userfd;
 
 int main(int argc, char *argv[])
 {
@@ -28,6 +29,8 @@ int main(int argc, char *argv[])
         printf("wrong arguments\n");
         exit(0);
     }
+
+    userfd = open(USER_LOGFILE, O_WRONLY | O_CREAT | O_EXCL, 0644);
 
     //printTest(flag);
     tlv_request_t t = join_structs_to_send(flag);

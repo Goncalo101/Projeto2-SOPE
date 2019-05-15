@@ -1,10 +1,11 @@
 #include "accounts.h"
 
 #include "crypto.h"
+#include "sope.h"
 #include <stdio.h>
 #include <string.h>
 
-static uint32_t account_ids[MAX_BANK_ACCOUNTS] = {0};
+static uint32_t account_ids[MAX_BANK_ACCOUNTS] = { 0 };
 
 void insert_account(bank_account_t account)
 {
@@ -15,7 +16,7 @@ void insert_account(bank_account_t account)
 //TODO: add possibility to be differrent id and not incremented automatically--done
 //Need to verify if it was already used
 
-void create_admin_account(char* password)
+void create_admin_account(char* password, int fildes)
 {
     char salt[SALT_LEN + 1] = "asdasdasd";
     create_salt(salt);
@@ -30,13 +31,15 @@ void create_admin_account(char* password)
     strcpy(account.hash, hash); //TODO:add hash
 
     insert_account(account);
-    //add log here
+
+    //Add log here
+    logAccountCreation(fildes, 0, &account);
 }
 
-ret_code_t create_account(char* password, uint32_t balance, uint32_t new_id, uint32_t account_create_id, uint32_t delay)
+ret_code_t create_account(char* password, uint32_t balance, uint32_t new_id, uint32_t account_create_id, uint32_t delay, int fildes)
 {
-    op_delay(delay);
-    char salt[SALT_LEN + 1] = "asdasdasd";
+    op_delay(delay, 0, fildes);
+    char salt[SALT_LEN + 1];
     create_salt(salt);
     char hash[HASH_LEN + 1] = "asdasdasd";
     create_hash(password, salt, hash); //TODO:fix bug in sha256sum
@@ -58,13 +61,15 @@ ret_code_t create_account(char* password, uint32_t balance, uint32_t new_id, uin
 
     //RC_OTHER
 
-    //add log here
+    //Add log here
+    logAccountCreation(fildes, 0, &account);
+
     return RC_OK;
 }
 
-ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t value, uint32_t delay)
+ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t value, uint32_t delay, int fildes)
 {
-    op_delay(delay);
+    op_delay(delay, 0, fildes);
     // check if either of the accounts doesn't exist (the sender has to exist so it might not be
     // necessary to check if the sender exists)
     if (account_ids[sender_id] == 0 || account_ids[receiver_id] == 0) {
@@ -92,9 +97,9 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
     return RC_OK;
 }
 
-ret_code_t authenticate_user(uint32_t id, uint32_t delay, char* password)
+ret_code_t authenticate_user(uint32_t id, uint32_t delay, char* password, int fildes)
 {
-    op_delay(delay);
+    op_delay(delay, 0, fildes);
     char hash[HASH_LEN];
 
     if (account_ids[id] != 1)
@@ -106,7 +111,6 @@ ret_code_t authenticate_user(uint32_t id, uint32_t delay, char* password)
         return RC_OK;
     else
         return RC_OTHER;
-
 }
 
 //handle balance request functions
@@ -120,14 +124,15 @@ ret_code_t get_account(uint32_t account_id, bank_account_t* account)
     }
 }
 
-void op_delay(uint32_t delayMS)
+void op_delay(uint32_t delayMS, int threadID, int fildes)
 {
     usleep(delayMS * 1000);
+    logDelay(fildes, threadID, delayMS);
 }
 
-ret_code_t handle_balance_request(uint32_t delay, uint32_t id, uint32_t* balance)
+ret_code_t handle_balance_request(uint32_t delay, uint32_t id, uint32_t* balance, int fildes)
 {
-    op_delay(delay); //TODO:test functionality
+    op_delay(delay, 0, fildes); //TODO:test functionality
     if (id != ADMIN_ACCOUNT_ID) {
         bank_account_t account;
         ret_code_t ret = get_account(id, &account);
@@ -141,9 +146,9 @@ ret_code_t handle_balance_request(uint32_t delay, uint32_t id, uint32_t* balance
     }
 }
 
-ret_code_t handle_shutdown(uint32_t id, uint32_t* shutdown, uint32_t* active_nbr, uint32_t delay)
+ret_code_t handle_shutdown(uint32_t id, uint32_t* shutdown, uint32_t* active_nbr, uint32_t delay, int fildes)
 {
-    op_delay(delay);
+    op_delay(delay, 0, fildes);
     if (id == 0) {
         *shutdown = 1;
         *active_nbr = 1; //TODO:add real number of active threads
