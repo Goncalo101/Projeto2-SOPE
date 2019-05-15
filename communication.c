@@ -32,15 +32,16 @@ void read_fifo_server(int fifo, tlv_request_t *t)
 {
     printf("fd read: %d\n", fifo);
     int r = 0;
+    // int w = write(fifo + 1, t, sizeof(tlv_request_t));
     r = read(fifo, t, sizeof(tlv_request_t));
-
-    while (r == 0)
-    {
-        close(fifo);
-        fifo = open(SERVER_FIFO_PATH, O_RDONLY);
-        r = read(fifo, t, sizeof(tlv_request_t));
-        perror("");
-    }
+    printf("after read\n");
+    // while (r == 0)
+    // {
+    //     r = read(fifo, t, sizeof(tlv_request_t));
+        
+    //     if (r == -1)
+    //         perror("");
+    // }
 }
 
 void write_fifo_server(int fifo, tlv_request_t *to_write)

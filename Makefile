@@ -17,7 +17,7 @@ server:  $(SRV) $(COMN)
 	$(CC) -o $@ $^ $(CFLAGS)
 
 clean:
-	rm *.o user server /tmp/secure* /tmp/pipe*
+	rm -f *.o user server /tmp/secure* /tmp/pipe*
 	
 clean-logs:
 	rm *.txt

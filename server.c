@@ -23,22 +23,24 @@ int main(int argc, char *argv[])
     uint32_t shutdown = 0;
 
     // create admin account
-    // create_admin_account(argv[2]);
+    create_admin_account(argv[2]);
 
     // TODO: add balconies
 
     // create fifo to send information (server)
-    mkfifo(SERVER_FIFO_PATH, 0660);
+    mkfifo(SERVER_FIFO_PATH, 0666);
+
+    // reads from server(fifo) info send by user
+    tlv_request_t request;
+    int fifo = open(SERVER_FIFO_PATH, O_RDONLY);
+    int fifo_write = open(SERVER_FIFO_PATH, O_WRONLY);
+
+    printf("fifo %d, fifo_write %d\n", fifo, fifo_write);
 
     // main loop
     while (!shutdown)
     {
-
-        // reads from server(fifo) info send by user
-        tlv_request_t request;
-        int fifo = open(SERVER_FIFO_PATH, O_RDONLY);
         read_fifo_server(fifo, &request);
-        close(fifo);
         logRequest(STDOUT_FILENO, getpid(), &request);
 
         ret_code_t return_code = 0;
