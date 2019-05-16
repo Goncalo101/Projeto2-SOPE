@@ -22,17 +22,12 @@ void read_fifo_answer(int fifo, tlv_reply_t *t)
 
 void read_fifo_server(int fifo, tlv_request_t *t)
 {
-    // printf("fd read: %d\n", fifo);
-    int r = 0;
-    r = read(fifo, t, sizeof(tlv_request_t));
+    read(fifo, t, sizeof(tlv_request_t));
 }
 
 void write_fifo_server(int fifo, tlv_request_t *to_write)
 {
-    // printf("fd write: %d\n", fifo);
-
-    int w = write(fifo, to_write, sizeof(tlv_request_t));
-    // printf("write return: %d \n", w);
+   write(fifo, to_write, sizeof(tlv_request_t));
 }
 
 void write_fifo_answer(int fifo, tlv_reply_t *to_write)

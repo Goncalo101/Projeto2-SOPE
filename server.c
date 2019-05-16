@@ -13,6 +13,7 @@
 #include "linked_list.h"
 #include "sope.h"
 #include "types.h"
+#include "argcheck.h"
 
 static node_t *request_queue;
 uint32_t shutdown = 0;
@@ -26,8 +27,6 @@ tlv_request_t get_request()
 {
     tlv_request_t request = request_queue->val;
     pop(&request_queue);
-
-    printf("\e[33mlog request non-main thread\e[39m\n");
     logRequest(STDOUT_FILENO, 0, &request);
 
     return request;
@@ -103,36 +102,39 @@ void *operations(void *nr)
         // writes answer to user by answer (fifo)
         char final[50];
         create_name_fifo(final, request.value.header.pid);
-        int fd = open(final, O_WRONLY);
+        int fifo_answer_write = open(final, O_WRONLY);
+        if (fifo_answer_write == -1)
+            return RC_USR_DOWN;
         logReply(STDOUT_FILENO, 0, &t);
-        write_fifo_answer(fd, &t);
+        write_fifo_answer(fifo_answer_write, &t);
         sem_post(&empty);
     }
 
     return NULL;
 }
 
+
 int main(int argc, char *argv[])
 {
-    if (argc != 3 || atoi(argv[1]) > MAX_BANK_OFFICES)
+    if (argc != 3 || check_server_arguments(argv[1], argv[2]))
     {
         printf("Wrong Usage: server <front office nr (<= %d )> <admin password> \n", MAX_BANK_OFFICES);
         exit(1);
     }
 
     int nbr_balconies = atoi(argv[1]);
-
     create_admin_account(argv[2], serverfd);
 
     mkfifo(SERVER_FIFO_PATH, 0660);
 
     int fifo_server_read = open(SERVER_FIFO_PATH, O_RDONLY);
     int fifo_server_write = open(SERVER_FIFO_PATH, O_WRONLY);
+    if (fifo_server_read == -1 || fifo_server_write == -1)
+        return RC_SRV_DOWN;
 
     sem_init(&empty, 0, 1);
     sem_init(&full, 0, 0);
 
-    //TODO: verify bankaccount numbers doesnt exceed maximum
     pthread_t tidf[nbr_balconies];
     int ids[nbr_balconies];
 
@@ -147,14 +149,16 @@ int main(int argc, char *argv[])
     {
         sem_wait(&empty);
         read_fifo_server(fifo_server_read, &request);
-        printf("\e[33mlog request main thread\e[39m\n");
         logRequest(STDOUT_FILENO, getpid(), &request);
 
-        if (request_queue == NULL) {
+        if (request_queue == NULL)
+        {
             request_queue = malloc(sizeof(node_t));
             request_queue->val = request;
             request_queue->next = NULL;
-        } else {
+        }
+        else
+        {
             push(request_queue, request);
         }
 
