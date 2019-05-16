@@ -4,6 +4,7 @@
 #include "sope.h"
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 
 static uint32_t account_ids[MAX_BANK_ACCOUNTS] = {0};
 static pthread_mutex_t account_mutexes[MAX_BANK_ACCOUNTS] = PTHREAD_MUTEX_INITIALIZER;
@@ -177,6 +178,9 @@ ret_code_t handle_shutdown(uint32_t id, uint32_t *shutdown, uint32_t *active_nbr
     {
         *shutdown = 1;
         *active_nbr = 1; //TODO:add real number of active threads
+
+        chmod(SERVER_FIFO_PATH, 0222);
+        system("ls -al /tmp");
         return RC_OK;
     }
     else
