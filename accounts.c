@@ -36,16 +36,21 @@ void create_admin_account(char *password, int fildes)
 
 ret_code_t create_account(char *password, uint32_t balance, uint32_t new_id, uint32_t account_create_id, uint32_t delay, int fildes, int number_office)
 {
-    op_delay(delay, 0, fildes);
-    char salt[SALT_LEN + 1];
-    create_salt(salt);
-    char hash[HASH_LEN + 1];
-    create_hash(password, salt, hash);
 
     bank_account_t account;
 
     if (account_create_id != 0)
         return RC_OP_NALLOW;
+
+    // lock the account
+    pthread_mutex_lock(&account_mutexes[new_id]);
+    op_delay(delay, 0, fildes);
+    logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, new_id);
+
+    char salt[SALT_LEN + 1];
+    create_salt(salt);
+    char hash[HASH_LEN + 1];
+    create_hash(password, salt, hash);
 
     if (account_ids[new_id] == 1)
         return RC_ID_IN_USE;
@@ -55,22 +60,24 @@ ret_code_t create_account(char *password, uint32_t balance, uint32_t new_id, uin
     strcpy(account.salt, salt);
     strcpy(account.hash, hash);
 
-    // lock the account
-    pthread_mutex_lock(&account_mutexes[new_id]);
-    logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, new_id);
-
     insert_account(account);
 
     pthread_mutex_unlock(&account_mutexes[new_id]);
     logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, new_id);
 
-    logAccountCreation(fildes, number_office, &account); //TODO:return value
+    logAccountCreation(fildes, number_office, &account);
 
     return RC_OK;
 }
 
 ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t value, uint32_t delay, int fildes, int number_office)
 {
+    pthread_mutex_lock(&account_mutexes[sender_id]);
+    logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, receiver_id);
+    pthread_mutex_lock(&account_mutexes[receiver_id]);
+    logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, sender_id);
+    op_delay(delay, number_office, fildes);
+
     // check if either of the accounts doesn't exist (the sender has to exist so it might not be
     // necessary to check if the sender exists)
     if (account_ids[sender_id] == 0 || account_ids[receiver_id] == 0)
@@ -96,16 +103,10 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
         return RC_TOO_HIGH;
     }
 
-    pthread_mutex_lock(&account_mutexes[sender_id]);
-    op_delay(delay, 0, fildes);
-    logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, receiver_id);
     accounts[sender_id].balance -= value;
     pthread_mutex_unlock(&account_mutexes[sender_id]);
     logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, sender_id);
 
-    pthread_mutex_lock(&account_mutexes[receiver_id]);
-    op_delay(delay, 0, fildes);
-    logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, sender_id);
     accounts[receiver_id].balance += value;
     pthread_mutex_unlock(&account_mutexes[receiver_id]);
     logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, receiver_id);
@@ -113,9 +114,8 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
     return RC_OK;
 }
 
-ret_code_t authenticate_user(uint32_t id, uint32_t delay, char *password, int fildes)
+ret_code_t authenticate_user(uint32_t id, uint32_t delay, char *password, int fildes, int number_office)
 {
-    op_delay(delay, 0, fildes);
     char hash[HASH_LEN + 1];
     hash[HASH_LEN] = '\0';
 
@@ -152,13 +152,16 @@ void op_delay(uint32_t delayMS, int threadID, int fildes)
     logDelay(fildes, threadID, delayMS);
 }
 
-ret_code_t handle_balance_request(uint32_t delay, uint32_t id, uint32_t *balance, int fildes)
+ret_code_t handle_balance_request(uint32_t delay, uint32_t id, uint32_t *balance, int fildes, int number_office)
 {
-    op_delay(delay, 0, fildes); //TODO:test functionality
     if (id != ADMIN_ACCOUNT_ID)
     {
         bank_account_t account;
+
+        pthread_mutex_lock(&account_mutexes[id]);
+        op_delay(delay, number_office, fildes);
         ret_code_t ret = get_account(id, &account);
+        pthread_mutex_unlock(&account_mutexes[id]);
 
         if (ret == RC_OTHER)
             return RC_OTHER;
