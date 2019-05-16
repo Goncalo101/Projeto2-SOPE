@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static uint32_t account_ids[MAX_BANK_ACCOUNTS] = { 0 };
+static uint32_t account_ids[MAX_BANK_ACCOUNTS] = {0};
 static pthread_mutex_t account_mutexes[MAX_BANK_ACCOUNTS] = PTHREAD_MUTEX_INITIALIZER;
 
 void insert_account(bank_account_t account)
@@ -59,7 +59,7 @@ ret_code_t create_account(char *password, uint32_t balance, uint32_t new_id, uin
     logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, new_id);
 
     insert_account(account);
-    
+
     pthread_mutex_unlock(&account_mutexes[new_id]);
     logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, new_id);
 
@@ -70,7 +70,6 @@ ret_code_t create_account(char *password, uint32_t balance, uint32_t new_id, uin
 
 ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t value, uint32_t delay, int fildes, int number_office)
 {
-    op_delay(delay, 0, fildes);
     // check if either of the accounts doesn't exist (the sender has to exist so it might not be
     // necessary to check if the sender exists)
     if (account_ids[sender_id] == 0 || account_ids[receiver_id] == 0)
@@ -97,18 +96,18 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
     }
 
     pthread_mutex_lock(&account_mutexes[sender_id]);
-    logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, sender_id);
-    pthread_mutex_lock(&account_mutexes[receiver_id]);
+    op_delay(delay, 0, fildes);
     logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, receiver_id);
-
     accounts[sender_id].balance -= value;
-    accounts[receiver_id].balance += value;
-    
     pthread_mutex_unlock(&account_mutexes[sender_id]);
     logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, sender_id);
+
+    pthread_mutex_lock(&account_mutexes[receiver_id]);
+    op_delay(delay, 0, fildes);
+    logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, sender_id);
+    accounts[receiver_id].balance += value;
     pthread_mutex_unlock(&account_mutexes[receiver_id]);
     logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, receiver_id);
-
 
     return RC_OK;
 }
@@ -130,7 +129,6 @@ ret_code_t authenticate_user(uint32_t id, uint32_t delay, char *password, int fi
         return RC_OK;
     else
     {
-        printf("ola\n");
         return RC_LOGIN_FAIL;
     }
 }
