@@ -41,7 +41,6 @@ ret_code_t create_account(char *password, uint32_t balance, uint32_t new_id, uin
     if (account_create_id != 0)
         return RC_OP_NALLOW;
 
-    // lock the account
     pthread_mutex_lock(&account_mutexes[new_id]);
     op_delay(delay, 0, fildes);
     logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, new_id);
@@ -133,7 +132,6 @@ ret_code_t authenticate_user(uint32_t id, uint32_t delay, char *password, int fi
     }
 }
 
-//handle balance request functions
 ret_code_t get_account(uint32_t account_id, bank_account_t *account)
 {
     if (account_ids[account_id] != 1)

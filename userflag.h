@@ -5,6 +5,8 @@
 #include "types.h"
 #include <string.h>
 
+#define WRONG_ARGUMENTS 1
+
 typedef struct {
     uint32_t id;
     char password[MAX_PASSWORD_LEN + 1];
