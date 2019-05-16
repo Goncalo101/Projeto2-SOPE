@@ -6,6 +6,8 @@
 #include <string.h>
 
 static uint32_t account_ids[MAX_BANK_ACCOUNTS] = { 0 };
+static pthread_mutex_t account_mutexes[MAX_BANK_ACCOUNTS] = PTHREAD_MUTEX_INITIALIZER;
+
 
 void insert_account(bank_account_t account)
 {
@@ -53,14 +55,21 @@ ret_code_t create_account(char* password, uint32_t balance, uint32_t new_id, uin
     strcpy(account.salt, salt);
     strcpy(account.hash, hash); 
 
+    // lock the account
+    pthread_mutex_lock(&account_mutexes[new_id]);
+    logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, new_id);
+
     insert_account(account);
+    
+    pthread_mutex_unlock(&account_mutexes[new_id]);
+    logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, new_id);
 
     logAccountCreation(fildes,number_office,&account); //TODO:return value
 
     return RC_OK;
 }
 
-ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t value, uint32_t delay, int fildes)
+ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t value, uint32_t delay, int fildes, int number_office)
 {
     op_delay(delay, 0, fildes);
     // check if either of the accounts doesn't exist (the sender has to exist so it might not be
@@ -84,8 +93,19 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
         return RC_TOO_HIGH;
     }
 
+    pthread_mutex_lock(&account_mutexes[sender_id]);
+    logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, sender_id);
+    pthread_mutex_lock(&account_mutexes[receiver_id]);
+    logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, receiver_id);
+
     accounts[sender_id].balance -= value;
     accounts[receiver_id].balance += value;
+    
+    pthread_mutex_unlock(&account_mutexes[sender_id]);
+    logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, sender_id);
+    pthread_mutex_unlock(&account_mutexes[receiver_id]);
+    logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, receiver_id);
+
 
     return RC_OK;
 }
