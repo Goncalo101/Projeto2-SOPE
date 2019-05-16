@@ -122,6 +122,8 @@ int main(int argc, char *argv[])
 
     int nbr_balconies = atoi(argv[1]);
 
+    create_admin_account(argv[2], serverfd);
+
     mkfifo(SERVER_FIFO_PATH, 0660);
 
     int fifo_server_read = open(SERVER_FIFO_PATH, O_RDONLY);
