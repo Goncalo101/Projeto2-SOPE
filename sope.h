@@ -18,7 +18,7 @@
  * @param request The request message.
  * @return int Number of printed characters or a negative value in case of error.
  */
-int logRequest(int fd, int id, const tlv_request_t* request);
+int logRequest(int fd, int id, const tlv_request_t *request);
 
 /**
  * @brief Log reply message into file.
@@ -28,7 +28,7 @@ int logRequest(int fd, int id, const tlv_request_t* request);
  * @param reply The reply message.
  * @return int Number of printed characters or a negative value in case of error.
  */
-int logReply(int fd, int id, const tlv_reply_t* request);
+int logReply(int fd, int id, const tlv_reply_t *request);
 
 /**
  * @brief Log a bank office opening.
@@ -58,7 +58,7 @@ int logBankOfficeClose(int fd, int id, pthread_t tid);
  * @param account The account information.
  * @return int Number of printed characters or a negative value in case of error.
  */
-int logAccountCreation(int fd, int id, const bank_account_t* account);
+int logAccountCreation(int fd, int id, const bank_account_t *account);
 
 /**
  * @brief Log the usage of a synchronization mechanism function (other than semaphores).

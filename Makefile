@@ -17,7 +17,7 @@ server:  $(SRV) $(COMN)
 	$(CC) -o $@ $^ $(CFLAGS) -lpthread
 
 clean:
-	rm -f *.o user server /tmp/secure* /tmp/pipe*
+	rm -f *.o user *.txt server /tmp/secure* /tmp/pipe*
 	
 clean-logs:
 	rm *.txt
