@@ -35,7 +35,6 @@ void create_salt(char* salt)
 void create_hash(char* pass, char* salt, char* hash)
 {
     char tohash[MAX_PASSWORD_LEN + SALT_LEN + 1];
-    printf("pass: '%s', salt: '%s'\n", pass, salt);
     strcpy(tohash, pass);
     strncat(tohash, salt, strlen(salt));
     sha256(tohash, hash);
@@ -43,7 +42,6 @@ void create_hash(char* pass, char* salt, char* hash)
 
 void sha256(const char* file_name, char* result)
 {
-    // in and out from the perspective of the co-process
     int fd_in[2];
     int fd_out[2];
     pid_t pid;
@@ -70,6 +68,5 @@ void sha256(const char* file_name, char* result)
         close(fd_in[WRITE]);
 
         read(fd_out[READ], result, SHA256_SIZE * sizeof(char));
-        printf("sha256sum: %s\n", result);
     }
 }

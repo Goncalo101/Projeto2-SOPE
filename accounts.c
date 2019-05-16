@@ -13,36 +13,32 @@ void insert_account(bank_account_t account)
     account_ids[account.account_id] = 1;
 }
 
-//TODO: add possibility to be differrent id and not incremented automatically--done
-//Need to verify if it was already used
-
 void create_admin_account(char* password, int fildes)
 {
-    char salt[SALT_LEN + 1] = "asdasdasd";
+    char salt[SALT_LEN + 1];
     create_salt(salt);
-    char hash[HASH_LEN + 1] = "asdasdasd";
-    create_hash(password, salt, hash); //TODO:fix bug in sha256sum
+    char hash[HASH_LEN + 1];
+    create_hash(password, salt, hash); 
 
     bank_account_t account;
 
     account.account_id = 0;
     account.balance = 0;
     strcpy(account.salt, salt);
-    strcpy(account.hash, hash); //TODO:add hash
+    strcpy(account.hash, hash); 
 
     insert_account(account);
 
-    //Add log here
     logAccountCreation(fildes, 0, &account);
 }
 
-ret_code_t create_account(char* password, uint32_t balance, uint32_t new_id, uint32_t account_create_id, uint32_t delay, int fildes)
+ret_code_t create_account(char* password, uint32_t balance, uint32_t new_id, uint32_t account_create_id, uint32_t delay, int fildes, int number_office)
 {
     op_delay(delay, 0, fildes);
     char salt[SALT_LEN + 1];
     create_salt(salt);
-    char hash[HASH_LEN + 1] = "asdasdasd";
-    create_hash(password, salt, hash); //TODO:fix bug in sha256sum
+    char hash[HASH_LEN + 1];
+    create_hash(password, salt, hash);
 
     bank_account_t account;
 
@@ -55,14 +51,11 @@ ret_code_t create_account(char* password, uint32_t balance, uint32_t new_id, uin
     account.account_id = new_id;
     account.balance = balance;
     strcpy(account.salt, salt);
-    strcpy(account.hash, hash); //TODO:add hash
+    strcpy(account.hash, hash); 
 
     insert_account(account);
 
-    //RC_OTHER
-
-    //Add log here
-    logAccountCreation(fildes, 0, &account);
+    logAccountCreation(fildes,number_office,&account); //TODO:return value
 
     return RC_OK;
 }
