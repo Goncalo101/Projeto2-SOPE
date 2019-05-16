@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
     {
         ids[k] = k + 1;
         pthread_create(&tidf[k], NULL, operations, &ids[k]);
-        logBankOfficeOpen(serverlog, 0, 0);
+        logBankOfficeOpen(serverlog, 0, tidf[k]);
     }
 
     tlv_request_t request;
@@ -194,6 +194,7 @@ int main(int argc, char *argv[])
     for (int k = 0; k < nbr_balconies; k++)
     {
         pthread_join(tidf[k], NULL);
+        logBankOfficeClose(serverlog,0,tidf[k]);
     }
 
     close(fifo_server_read);
