@@ -42,7 +42,6 @@ tlv_request_t get_request()
 void *operations(void *nr)
 {
     int number_office = *(int *)nr;
-    printf("numb offices %d", number_office);
 
     ret_code_t return_code;
     rep_header_t header;
@@ -59,6 +58,7 @@ void *operations(void *nr)
         return_code = authenticate_user(request.value.header.account_id, request.value.header.op_delay_ms, request.value.header.password, serverlog);
         if (return_code != 0)
         {
+            printf("%d", return_code);
             create_header_struct_a(request.value.create.account_id, return_code, &header);
             t = join_structs_to_send_a(0, &header, NULL, NULL, NULL);
         }

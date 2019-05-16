@@ -67,6 +67,6 @@ void sha256(const char* file_name, char* result)
         write(fd_in[WRITE], file_name, strlen(file_name));
         close(fd_in[WRITE]);
 
-        read(fd_out[READ], result, SHA256_SIZE * sizeof(char));
+        read(fd_out[READ], result, HASH_LEN * sizeof(char));
     }
 }

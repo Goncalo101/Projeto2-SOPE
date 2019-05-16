@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS = -Wall -Wextra -pedantic
-DEPS = constants.h types.h accounts.h sope.h userflag.h communication.h serverfifoaux.h answerfifoaux.h crypto.h define.h argcheck.h 
+DEPS = constants.h types.h accounts.h sope.h userflag.h communication.h serverfifoaux.h answerfifoaux.h crypto.h argcheck.h 
 COMN = log.o communication.o crypto.o argcheck.o
 SRV = server.o accounts.o answerfifoaux.o linked_list.o
 USR = user.o userflag.o serverfifoaux.o
@@ -17,7 +17,7 @@ server:  $(SRV) $(COMN)
 	$(CC) -o $@ $^ $(CFLAGS) -lpthread
 
 clean:
-	rm -f *.o user server /tmp/secure* /tmp/pipe*
+	rm -f *.o user server /tmp/secure* /tmp/pipe* ulog.txt slog.txt
 	
 clean-logs:
 	rm *.txt
