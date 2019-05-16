@@ -180,8 +180,7 @@ ret_code_t handle_shutdown(uint32_t id, uint32_t *shutdown, uint32_t *active_nbr
         *shutdown = 1;
         *active_nbr = 1; //TODO:add real number of active threads
 
-        chmod(SERVER_FIFO_PATH, 0222);
-        system("ls -al /tmp");
+        chmod(SERVER_FIFO_PATH, 0444);
         return RC_OK;
     }
     else
