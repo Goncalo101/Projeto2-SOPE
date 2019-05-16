@@ -97,10 +97,10 @@ void *operations(void *nr)
                                              request.value.transfer.account_id,
                                              request.value.transfer.amount, request.value.header.op_delay_ms, serverlog, number_office);
                 create_header_struct_a(request.value.header.account_id, return_code, &header);
-                
+
                 transfer.balance = accounts[request.value.header.account_id].balance;
                 t = join_structs_to_send_a(2, &header, NULL, &transfer, NULL);
-                
+
                 break;
             }
             case 3: // shutdown
@@ -126,7 +126,7 @@ void *operations(void *nr)
         logReply(serverlog, number_office, &t);
         write_fifo_answer(fifo_answer_write, &t);
         sem_post(&empty);
-        logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, 0, get_sem_value(&empty));
+        logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, request.value.header.pid, get_sem_value(&empty));
     }
 
     return NULL;
@@ -153,10 +153,10 @@ int main(int argc, char *argv[])
     if (fifo_server_read == -1 || fifo_server_write == -1)
         return RC_SRV_DOWN;
 
-    sem_init(&empty, 0, 1);
     logSyncMechSem(serverlog, 0, SYNC_OP_SEM_INIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&empty));
-    sem_init(&full, 0, 0);
+    sem_init(&empty, 0, 1);
     logSyncMechSem(serverlog, 0, SYNC_OP_SEM_INIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&full));
+    sem_init(&full, 0, 0);
 
     pthread_t tidf[nbr_balconies];
     int ids[nbr_balconies];
@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
         }
 
         sem_post(&full);
-        logSyncMechSem(serverlog, 0, SYNC_OP_SEM_POST, SYNC_ROLE_PRODUCER, 0,get_sem_value(&full));
+        logSyncMechSem(serverlog, 0, SYNC_OP_SEM_POST, SYNC_ROLE_PRODUCER, request.value.header.pid, get_sem_value(&full));
     }
 
     for (int k = 0; k < nbr_balconies; k++)
