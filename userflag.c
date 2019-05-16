@@ -1,5 +1,4 @@
 #include "userflag.h"
-#include "define.h"
 #include "types.h"
 #include "argcheck.h"
 

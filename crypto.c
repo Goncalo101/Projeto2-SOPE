@@ -5,7 +5,6 @@
 #include <unistd.h>
 
 #include "crypto.h"
-#include "define.h"
 #include "types.h"
 
 /*generate salt*/
