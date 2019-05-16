@@ -10,7 +10,7 @@
 #include "types.h"
 #include "userflag.h"
 
-static int userfd;
+static int userlog;
 
 int main(int argc, char *argv[])
 {
@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     }
 
     //--OPEN LOG FILE ---------------------
-    userfd = open(USER_LOGFILE, O_WRONLY | O_CREAT | O_EXCL, 0644);
+    userlog = open(USER_LOGFILE, O_WRONLY | O_CREAT , 0644);
     //-------------------------------------
 
     //--PROCESS ARGUMENTS--------------
@@ -33,13 +33,11 @@ int main(int argc, char *argv[])
     }
 
     tlv_request_t t = join_structs_to_send(flag);
-    logRequest(STDOUT_FILENO, getpid(), &t);
     //-------------------------------------
 
     //--CREATE ANSWER FIFO----------------
     char final[50];
     create_name_fifo(final, getpid());
-    printf("%s\n", final);
     mkfifo(final, 0660);
     //-------------------------------------
 
@@ -47,6 +45,7 @@ int main(int argc, char *argv[])
     int fifo_server_write = open(SERVER_FIFO_PATH, O_WRONLY);
     if (fifo_server_write == -1)
         return RC_SRV_DOWN;
+    logRequest(userlog,getpid(),&t);
     write_fifo_server(fifo_server_write, &t);
     close(fifo_server_write);
     //-------------------------------------
@@ -59,7 +58,7 @@ int main(int argc, char *argv[])
         return RC_USR_DOWN;
 
     read_fifo_answer(fifo_answer_read, &reply); //TODO:wait for 30s
-    logReply(STDOUT_FILENO, getpid(), &reply);
+    logReply(userlog, getpid(), &reply);
     //-------------------------------------
 
     close(fifo_answer_read);

@@ -32,7 +32,7 @@ void create_admin_account(char* password, int fildes)
     logAccountCreation(fildes, 0, &account);
 }
 
-ret_code_t create_account(char* password, uint32_t balance, uint32_t new_id, uint32_t account_create_id, uint32_t delay, int fildes)
+ret_code_t create_account(char* password, uint32_t balance, uint32_t new_id, uint32_t account_create_id, uint32_t delay, int fildes, int number_office)
 {
     op_delay(delay, 0, fildes);
     char salt[SALT_LEN + 1];
@@ -55,7 +55,7 @@ ret_code_t create_account(char* password, uint32_t balance, uint32_t new_id, uin
 
     insert_account(account);
 
-    logAccountCreation(fildes, 0, &account);
+    logAccountCreation(fildes,number_office,&account); //TODO:return value
 
     return RC_OK;
 }
