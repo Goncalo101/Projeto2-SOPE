@@ -16,6 +16,8 @@
 #include "argcheck.h"
 
 static node_t *request_queue;
+static pthread_mutex_t account_mutexes[MAX_BANK_ACCOUNTS] = PTHREAD_MUTEX_INITIALIZER;
+
 uint32_t shutdown = 0;
 static int serverlog;
 
@@ -29,6 +31,7 @@ int get_sem_value(sem_t *t)
     else
         return -1;
 }
+
 tlv_request_t get_request()
 {
     tlv_request_t request = request_queue->val;
@@ -65,6 +68,9 @@ void *operations(void *nr)
             {
             case 0: // create account
             {
+                pthread_mutex_lock(&account_mutexes[request.value.create.account_id]);
+                logSyncMech(serverlog, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, request.value.create.account_id);
+
                 if (return_code == 0)
                 {
                     return_code = create_account(
@@ -73,12 +79,16 @@ void *operations(void *nr)
                 }
                 create_header_struct_a(request.value.create.account_id, return_code, &header);
                 t = join_structs_to_send_a(0, &header, NULL, NULL, NULL);
+
+                pthread_mutex_unlock(&account_mutexes[request.value.create.account_id]);
+                logSyncMech(serverlog, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, request.value.create.account_id);
                 break;
             }
             case 1: // balance check
             {
                 rep_balance_t balance;
                 uint32_t balance_nbr = 0;
+
                 handle_balance_request(request.value.header.op_delay_ms,
                                        request.value.header.account_id, &balance_nbr, serverlog);
                 create_balance_struct_a(balance_nbr, &balance);
@@ -88,21 +98,35 @@ void *operations(void *nr)
             case 2: // transference
             {
                 rep_transfer_t transfer;
+                
+                pthread_mutex_lock(&account_mutexes[request.value.create.account_id]);
+                logSyncMech(serverlog, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, request.value.create.account_id);
+
                 return_code = transfer_money(request.value.header.account_id,
                                              request.value.transfer.account_id,
                                              request.value.transfer.amount, request.value.header.op_delay_ms, serverlog);
                 create_header_struct_a(request.value.header.account_id, return_code, &header);
                 transfer.balance = accounts[request.value.header.account_id].balance;
                 t = join_structs_to_send_a(2, &header, NULL, &transfer, NULL);
+                
+                pthread_mutex_unlock(&account_mutexes[request.value.create.account_id]);
+                logSyncMech(serverlog, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, request.value.create.account_id);
                 break;
             }
             case 3: // shutdown
             {
                 uint32_t active;
                 rep_shutdown_t shutdown_str;
+
+                pthread_mutex_lock(&account_mutexes[request.value.create.account_id]);
+                logSyncMech(serverlog, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, request.value.create.account_id);
+
                 handle_shutdown(request.value.header.account_id, &shutdown, &active, request.value.header.op_delay_ms, serverlog);
                 create_shutdown_struct_a(0, &shutdown_str); //TODO:add real numnber of active banks(when threads)
                 t = join_structs_to_send_a(3, &header, NULL, NULL, &shutdown_str);
+
+                pthread_mutex_unlock(&account_mutexes[request.value.create.account_id]);
+                logSyncMech(serverlog, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, request.value.create.account_id);
                 break;
             }
             }
