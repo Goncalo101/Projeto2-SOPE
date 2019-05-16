@@ -54,7 +54,7 @@ void *operations(void *nr)
         request = get_request();
         logRequest(serverlog, number_office, &request);
 
-        return_code = authenticate_user(request.value.header.account_id, request.value.header.op_delay_ms, request.value.header.password, serverlog);
+        return_code = authenticate_user(request.value.header.account_id, request.value.header.op_delay_ms, request.value.header.password, serverlog,number_office);
         if (return_code != 0)
         {
             printf("%d", return_code);
@@ -84,7 +84,7 @@ void *operations(void *nr)
                 uint32_t balance_nbr = 0;
 
                 handle_balance_request(request.value.header.op_delay_ms,
-                                       request.value.header.account_id, &balance_nbr, serverlog);
+                                       request.value.header.account_id, &balance_nbr, serverlog, number_office);
                 create_balance_struct_a(balance_nbr, &balance);
                 t = join_structs_to_send_a(1, &header, &balance, NULL, NULL);
                 break;
