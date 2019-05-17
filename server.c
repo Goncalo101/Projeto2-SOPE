@@ -91,7 +91,6 @@ void *operations(void *nr)
             }
             case 2: // transference
             {
-                printf("oi\n");
                 rep_transfer_t transfer;
 
                 return_code = transfer_money(request.value.header.account_id,
