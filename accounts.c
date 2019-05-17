@@ -72,9 +72,9 @@ ret_code_t create_account(char *password, uint32_t balance, uint32_t new_id, uin
 ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t value, uint32_t delay, int fildes, int number_office)
 {
     pthread_mutex_lock(&account_mutexes[sender_id]);
-    logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, receiver_id);
-    pthread_mutex_lock(&account_mutexes[receiver_id]);
     logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, sender_id);
+    pthread_mutex_lock(&account_mutexes[receiver_id]);
+    logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, receiver_id);
     op_delay(delay, number_office, fildes);
 
     // check if either of the accounts doesn't exist (the sender has to exist so it might not be
