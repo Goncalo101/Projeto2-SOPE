@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <sys/types.h>
 
 #include "crypto.h"
 #include "types.h"

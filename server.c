@@ -142,11 +142,12 @@ int main(int argc, char *argv[])
 
     int nbr_balconies = atoi(argv[1]);
 
+    serverlog = open(SERVER_LOGFILE, O_WRONLY | O_CREAT, 0644);
+    
     create_admin_account(argv[2], serverlog);
 
     mkfifo(SERVER_FIFO_PATH, 0660);
 
-    serverlog = open(SERVER_LOGFILE, O_WRONLY | O_CREAT, 0644);
 
     int fifo_server_read = open(SERVER_FIFO_PATH, O_RDONLY);
     int fifo_server_write = open(SERVER_FIFO_PATH, O_WRONLY);
