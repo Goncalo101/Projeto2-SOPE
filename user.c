@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     }
 
     //--OPEN LOG FILE ---------------------
-    userlog = open(USER_LOGFILE, O_WRONLY | O_CREAT |O_APPEND , 0644);
+    userlog = open(USER_LOGFILE, O_WRONLY | O_CREAT | O_APPEND, 0644);
     //-------------------------------------
 
     //--PROCESS ARGUMENTS--------------
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     int fifo_server_write = open(SERVER_FIFO_PATH, O_WRONLY);
     if (fifo_server_write == -1)
         return RC_SRV_DOWN;
-    logRequest(userlog,getpid(),&t);
+    logRequest(userlog, getpid(), &t);
     write_fifo_server(fifo_server_write, &t);
     close(fifo_server_write);
     //-------------------------------------
@@ -54,10 +54,16 @@ int main(int argc, char *argv[])
     tlv_reply_t reply;
     int fifo_answer_read = open(final, O_RDONLY);
     int fifo_answer_write = open(final, O_WRONLY);
+    
     if (fifo_answer_read == -1 || fifo_answer_write == -1)
-        return RC_USR_DOWN;
+    {
+        reply.value.header.ret_code = RC_USR_DOWN;
+    }
+    else
+    {
+        read_fifo_answer(fifo_answer_read, &reply); //TODO:wait for 30s
+    }
 
-    read_fifo_answer(fifo_answer_read, &reply); //TODO:wait for 30s
     logReply(userlog, getpid(), &reply);
     //-------------------------------------
 

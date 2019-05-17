@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
         logSyncMechSem(serverlog, 0, SYNC_OP_SEM_WAIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&empty)); //TODO: add in NULL and check empty
         sem_wait(&empty);
        read_fifo_server(fifo_server_read, &request);
-        logRequest(serverlog, 0, &request);
+        // logRequest(serverlog, 0, &request);
 
         if (request_queue == NULL)
         {
