@@ -48,7 +48,6 @@ int main(int argc, char* argv[])
         logReply(userlog, getpid(), &reply);
     } else {
         //--READ REPLY FROM SERVER TO USER---------
-
         read_fifo_answer(final, &reply); //TODO:wait for 30s not forget RC_TIMEOUT
         logReply(userlog, getpid(), &reply);
         //-------------------------------------

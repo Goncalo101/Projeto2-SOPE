@@ -1,5 +1,6 @@
 #include "communication.h"
 
+#include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,7 +19,13 @@ void create_name_fifo(char* final, pid_t pid)
 void read_fifo_answer(char* name, tlv_reply_t* t)
 {
     int fifo_answer_read = open(name, O_RDONLY);
+    alarm(FIFO_TIMEOUT_SECS);
     read(fifo_answer_read, t, sizeof(tlv_reply_t));
+    
+    if (errno == EINTR) {
+        t->value.header.ret_code = RC_SRV_TIMEOUT;
+    }
+
     close(fifo_answer_read);
 }
 
