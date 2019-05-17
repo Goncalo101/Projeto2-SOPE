@@ -63,14 +63,15 @@ ret_code_t create_account(char *password, uint32_t balance, uint32_t new_id, uin
     create_salt(salt);
     char hash[HASH_LEN + 1];
     create_hash(password, salt, hash);
+    hash[HASH_LEN] = '\0';
 
     if (account_ids[new_id] == 1)
         return RC_ID_IN_USE;
 
     account.account_id = new_id;
     account.balance = balance;
-    strcpy(account.salt, salt);
     strcpy(account.hash, hash);
+    strcpy(account.salt, salt);
 
     insert_account(account);
 
