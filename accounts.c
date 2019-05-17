@@ -135,20 +135,22 @@ ret_code_t authenticate_user(uint32_t id, uint32_t delay, char *password, int fi
     op_delay(delay, number_office, fildes);
     if (account_ids[id] != 1)
     {
-        printf("dcvgbhn\n");
+        pthread_mutex_unlock(&account_mutexes[id]);
         return RC_LOGIN_FAIL;
     }
 
     create_hash(password, accounts[id].salt, hash);
 
     if (strcmp(hash, accounts[id].hash) == 0)
+    {
+        pthread_mutex_unlock(&account_mutexes[id]);
         return RC_OK;
+    }
     else
     {
-        printf("fdtghyujhgf\n");
+        pthread_mutex_unlock(&account_mutexes[id]);
         return RC_LOGIN_FAIL;
     }
-    pthread_mutex_unlock(&account_mutexes[id]);
 }
 
 ret_code_t get_account(uint32_t account_id, bank_account_t *account)
