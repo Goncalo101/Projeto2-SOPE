@@ -47,7 +47,7 @@ void *operations(void *nr)
     tlv_reply_t t;
     tlv_request_t request;
 
-    while (!shutdown)
+    while (!shutdown && list_size(request_queue) == 0)
     {
         logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_WAIT, SYNC_ROLE_CONSUMER, 0, get_sem_value(&full));
         sem_wait(&full);

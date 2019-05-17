@@ -34,8 +34,8 @@
 #define FIFO_TIMEOUT_SECS 30
 
 #define BUFFER_SIZE 256
-#define WRITE 0
-#define READ 1
+#define READ 0
+#define WRITE 1
 #define WRONG_ARGUMENTS 1
 #define BUFFER_SIZE 256
 #define SHA256_SIZE 64
