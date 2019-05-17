@@ -177,12 +177,12 @@ ret_code_t handle_balance_request(uint32_t delay, uint32_t id, uint32_t *balance
 
 ret_code_t handle_shutdown(uint32_t id, uint32_t *shutdown, uint32_t *active_nbr, uint32_t delay, int fildes)
 {
-    op_delay(delay, 0, fildes);
     if (id == 0)
     {
         *shutdown = 1;
         *active_nbr = 1; //TODO:add real number of active threads
 
+        op_delay(delay, 0, fildes);
         chmod(SERVER_FIFO_PATH, 0444);
         return RC_OK;
     }
