@@ -47,7 +47,7 @@ void *operations(void *nr)
     tlv_reply_t t;
     tlv_request_t request;
 
-    while (!shutdown && list_size(request_queue) == 0)
+    while (!shutdown && list_size(request_queue) != 0)
     {
         logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_WAIT, SYNC_ROLE_CONSUMER, 0, get_sem_value(&full));
         sem_wait(&full);
@@ -171,6 +171,8 @@ int main(int argc, char *argv[])
     tlv_request_t request;
     while (!shutdown)
     {
+        printf("lock\n");
+
         logSyncMechSem(serverlog, 0, SYNC_OP_SEM_WAIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&empty)); //TODO: add in NULL and check empty
         sem_wait(&empty);
         read_fifo_server(fifo_server_read, &request);
@@ -189,10 +191,13 @@ int main(int argc, char *argv[])
 
         sem_post(&full);
         logSyncMechSem(serverlog, 0, SYNC_OP_SEM_POST, SYNC_ROLE_PRODUCER, request.value.header.pid, get_sem_value(&full));
+
+        printf("unlock\n");
     }
 
     for (int k = 0; k < nbr_balconies; k++)
     {
+        printf("joining thread num: %d, id: %lu\n", k, tidf[k]);
         pthread_join(tidf[k], NULL);
         logBankOfficeClose(serverlog,0,tidf[k]);
     }
