@@ -18,7 +18,6 @@
 static node_t *request_queue;
 uint32_t shutdown = 0;
 static int serverlog;
-static int fifo_server_write = 0;
 
 sem_t empty, full;
 
@@ -56,12 +55,11 @@ void *operations(void *nr)
         logRequest(serverlog, number_office, &request);
 
 
-
         return_code = authenticate_user(request.value.header.account_id, request.value.header.op_delay_ms, request.value.header.password, serverlog, number_office);
         if (return_code != 0)
         {
             create_header_struct_a(request.value.create.account_id, return_code, &header);
-            t = join_structs_to_send_a(0, &header, NULL, NULL, NULL);
+            t = join_structs_to_send_a(request.type, &header, NULL, NULL, NULL);
         }
         else
         {
@@ -122,11 +120,8 @@ void *operations(void *nr)
         // writes answer to user by answer (fifo)
         char final[50];
         create_name_fifo(final, request.value.header.pid);
-        int fifo_answer_write = open(final, O_WRONLY);
-        if (fifo_answer_write == -1)
-            return RC_USR_DOWN;
         logReply(serverlog, number_office, &t);
-        write_fifo_answer(fifo_answer_write, &t);
+        write_fifo_answer(final, &t);
         change_active(serverlog,number_office, REMOVE_ACTIVE_THREAD);
         sem_post(&empty);
         logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, request.value.header.pid, get_sem_value(&empty));
@@ -151,11 +146,6 @@ int main(int argc, char *argv[])
 
     mkfifo(SERVER_FIFO_PATH, 0660);
 
-    int fifo_server_read = open(SERVER_FIFO_PATH, O_RDONLY);
-    int fifo_server_write = open(SERVER_FIFO_PATH, O_WRONLY);
-    if (fifo_server_read == -1 || fifo_server_write == -1)
-        return RC_SRV_DOWN;
-
     logSyncMechSem(serverlog, 0, SYNC_OP_SEM_INIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&empty));
     sem_init(&empty, 0, 1);
     logSyncMechSem(serverlog, 0, SYNC_OP_SEM_INIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&full));
@@ -178,7 +168,7 @@ int main(int argc, char *argv[])
     {
         logSyncMechSem(serverlog, 0, SYNC_OP_SEM_WAIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&empty)); //TODO: add in NULL and check empty
         sem_wait(&empty);
-       read_fifo_server(fifo_server_read, &request);
+       read_fifo_server(&request);
         logRequest(serverlog, 0, &request);
 
         if (request_queue == NULL)
@@ -205,8 +195,6 @@ int main(int argc, char *argv[])
         logBankOfficeClose(serverlog, 0, tidf[k]);
     }
 
-    close(fifo_server_read);
-    close(fifo_server_write);
     unlink(SERVER_FIFO_PATH);
     return 0;
 }

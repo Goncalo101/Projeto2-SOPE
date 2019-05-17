@@ -63,14 +63,15 @@ ret_code_t create_account(char *password, uint32_t balance, uint32_t new_id, uin
     create_salt(salt);
     char hash[HASH_LEN + 1];
     create_hash(password, salt, hash);
+    hash[HASH_LEN] = '\0';
 
     if (account_ids[new_id] == 1)
         return RC_ID_IN_USE;
 
     account.account_id = new_id;
     account.balance = balance;
-    strcpy(account.salt, salt);
     strcpy(account.hash, hash);
+    strcpy(account.salt, salt);
 
     insert_account(account);
 
@@ -136,7 +137,6 @@ ret_code_t authenticate_user(uint32_t id, uint32_t delay, char *password, int fi
     if (account_ids[id] != 1)
     {
         pthread_mutex_unlock(&account_mutexes[id]);
-
         return RC_LOGIN_FAIL;
     }
 
