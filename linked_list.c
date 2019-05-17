@@ -1,5 +1,5 @@
 #include <stdlib.h>
-
+#include <stdio.h>
 #include "linked_list.h"
 
 void push(node_t *head, tlv_request_t val) {
@@ -14,18 +14,15 @@ void push(node_t *head, tlv_request_t val) {
   current->next->next = NULL;
 }
 
-size_t list_size(node_t *head) {
+int list_size_empty(node_t *head) {
+
   node_t *current = head;
-  size_t size = 1;
-  
-  if (head == NULL) return 0;
-
-  while (current->next != NULL) {
-    current = current->next;
-    ++size;
+  if (head == NULL) 
+  {
+    return 1;
   }
-
-  return size;
+  else return 0;
+ 
 }
 
 void pop(node_t **head) {

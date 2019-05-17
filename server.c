@@ -190,7 +190,6 @@ int main(int argc, char *argv[])
 
     for (int k = 0; k < nbr_balconies; k++)
     {
-        // printf("joining thread num: %d, id: %lu\n", k, tidf[k]);
         pthread_join(tidf[k], NULL);
         logBankOfficeClose(serverlog, 0, tidf[k]);
     }

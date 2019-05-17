@@ -25,8 +25,6 @@ void read_fifo_answer(char *name, tlv_reply_t *t)
 void read_fifo_server(tlv_request_t *t)
 {
     int fifo_server_read = open(SERVER_FIFO_PATH, O_RDONLY);
-    // if (fifo_server_write == -1) //TODO
-    //     return RC_SRV_DOWN;
 
     read(fifo_server_read, t, sizeof(tlv_request_t));
     close(fifo_server_read);
@@ -35,8 +33,7 @@ void read_fifo_server(tlv_request_t *t)
 void write_fifo_server(tlv_request_t *to_write)
 {
     int fifo_server_write = open(SERVER_FIFO_PATH, O_WRONLY);
-    // if (fifo_server_write == -1) //TODO
-    //     return RC_SRV_DOWN;
+
 
     write(fifo_server_write, to_write, sizeof(tlv_request_t));
     close(fifo_server_write);
@@ -46,8 +43,8 @@ void write_fifo_answer(char *name, tlv_reply_t *to_write)
 {
     int fifo_answer_write = open(name, O_WRONLY);
 
-    // if (fifo_answer_write == -1) //TODO
-    //     return RC_SRV_DOWN;
+    if (fifo_answer_write == -1) 
+       to_write->value.header.ret_code = RC_USR_DOWN;
 
     write(fifo_answer_write, to_write, sizeof(tlv_reply_t));
     close(fifo_answer_write);

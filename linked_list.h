@@ -9,7 +9,7 @@ typedef struct node {
 } node_t;
 
 void push(node_t* head, tlv_request_t val);
-size_t list_size(node_t* head);
+int list_size_empty(node_t *head);
 void pop(node_t **head);
 
 #endif /* _LINKED_LIST_H */
