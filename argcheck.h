@@ -3,13 +3,12 @@
 
 #include "types.h"
 
-
 //COMMON FUNCTIONS
 int verify_pass_len(char* pass);
 
 //SERVER FUNCTIONS
-int check_offices(char *number);
-int check_server_arguments(char *number, char*pass);
+int check_offices(char* number);
+int check_server_arguments(char* number, char* pass);
 
 //USER FUNCTIONS
 int verify_id(uint32_t id);

@@ -1,22 +1,22 @@
 #include "argcheck.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
-int check_offices(char *number)
+int check_offices(char* number)
 {
     return atoi(number) > MAX_BANK_OFFICES && atoi(number) <= 0;
 }
 
-int check_server_arguments(char *number, char *pass)
+int check_server_arguments(char* number, char* pass)
 {
     return check_offices(number) && verify_pass_len(pass);
 }
 
 int verify_id(uint32_t id) { return (id < MAX_BANK_ACCOUNTS && id >= 1); }
 
-int verify_pass_len(char *pass)
+int verify_pass_len(char* pass)
 {
     if (strchr(pass, ' ') != NULL)
         return 0;
@@ -29,7 +29,7 @@ int verify_opnumber(uint32_t opnumber) { return (opnumber <= 4); } //dont need t
 
 int verify_balance(uint32_t balance) { return (balance > MIN_BALANCE && balance < MAX_BALANCE); }
 
-int verify_transfer_arguments(char *arguments)
+int verify_transfer_arguments(char* arguments)
 {
     uint32_t id_dest, amount;
     id_dest = amount = 0;
@@ -38,7 +38,7 @@ int verify_transfer_arguments(char *arguments)
     return (verify_balance(amount) && verify_id(id_dest));
 }
 
-int verify_new_account_args(char *arguments)
+int verify_new_account_args(char* arguments)
 {
     uint32_t id, balance;
     id = balance = 0;

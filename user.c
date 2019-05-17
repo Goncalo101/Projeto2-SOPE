@@ -12,10 +12,9 @@
 
 static int userlog;
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    if (argc != 6)
-    {
+    if (argc != 6) {
         printf("Wrong Usage: user <id> <password> <delay> <operation nr> <list of arguments> \n");
         exit(1);
     }
@@ -26,8 +25,7 @@ int main(int argc, char *argv[])
 
     //--PROCESS ARGUMENTS--------------
     User_flag flag;
-    if (addflag(argv, &flag) != 0)
-    {
+    if (addflag(argv, &flag) != 0) {
         printf("wrong arguments\n");
         exit(0);
     }
@@ -43,22 +41,19 @@ int main(int argc, char *argv[])
 
     //--WRITE REQUEST FROM USER TO SERVER -----
     tlv_reply_t reply;
-    
-    logRequest(userlog,getpid(),&t);
-    if (write_fifo_server(&t) == RC_SRV_DOWN)
-    {
+
+    logRequest(userlog, getpid(), &t);
+    if (write_fifo_server(&t) == RC_SRV_DOWN) {
         reply.value.header.ret_code = RC_SRV_DOWN;
         logReply(userlog, getpid(), &reply);
-    }
-    else
-    {
-    //--READ REPLY FROM SERVER TO USER---------
+    } else {
+        //--READ REPLY FROM SERVER TO USER---------
 
-    read_fifo_answer(final, &reply); //TODO:wait for 30s not forget RC_TIMEOUT
-    logReply(userlog, getpid(), &reply);
-    //-------------------------------------
+        read_fifo_answer(final, &reply); //TODO:wait for 30s not forget RC_TIMEOUT
+        logReply(userlog, getpid(), &reply);
+        //-------------------------------------
     }
-    
+
     unlink(final);
     return 0;
 }

@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
-#include <sys/types.h>
 
 #include "crypto.h"
 #include "types.h"
@@ -63,7 +63,7 @@ void sha256(const char* file_name, char* result)
         close(fd_out[WRITE]);
         close(fd_in[READ]);
         memset(result, 0, HASH_LEN * sizeof(char));
-        
+
         write(fd_in[WRITE], file_name, strlen(file_name));
         close(fd_in[WRITE]);
 

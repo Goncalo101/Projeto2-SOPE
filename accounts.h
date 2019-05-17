@@ -5,10 +5,9 @@
 
 bank_account_t accounts[MAX_BANK_ACCOUNTS];
 
+void change_active(int fildes, int number_office, int flag);
 
-void change_active(int fildes, int number_office,int flag);
-
-ret_code_t create_account(char* password, uint32_t balance, uint32_t new_id, uint32_t account_create_id, uint32_t delay, int fildes,int nbr);
+ret_code_t create_account(char* password, uint32_t balance, uint32_t new_id, uint32_t account_create_id, uint32_t delay, int fildes, int nbr);
 ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t value, uint32_t delay, int fildes, int number_office);
 void insert_account(bank_account_t account);
 void show_bank_account(uint32_t id);

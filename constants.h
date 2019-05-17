@@ -42,5 +42,3 @@
 
 #define ADD_ACTIVE_THREAD 0
 #define REMOVE_ACTIVE_THREAD 1
-
-

@@ -4,12 +4,12 @@
 #include "types.h"
 
 typedef struct node {
-  tlv_request_t val;
-  struct node *next;
+    tlv_request_t val;
+    struct node* next;
 } node_t;
 
 void push(node_t* head, tlv_request_t val);
-int list_size_empty(node_t *head);
-void pop(node_t **head);
+int list_size_empty(node_t* head);
+void pop(node_t** head);
 
 #endif /* _LINKED_LIST_H */

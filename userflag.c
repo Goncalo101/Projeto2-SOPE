@@ -1,6 +1,6 @@
 #include "userflag.h"
-#include "types.h"
 #include "argcheck.h"
+#include "types.h"
 
 #include <stdio.h>
 #include <stdlib.h>
