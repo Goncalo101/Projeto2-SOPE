@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
     mkfifo(SERVER_FIFO_PATH, 0660);
 
     int fifo_server_read = open(SERVER_FIFO_PATH, O_RDONLY);
-    fifo_server_write = open(SERVER_FIFO_PATH, O_WRONLY);
+    int fifo_server_write = open(SERVER_FIFO_PATH, O_WRONLY);
     if (fifo_server_read == -1 || fifo_server_write == -1)
         return RC_SRV_DOWN;
 
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
         logSyncMechSem(serverlog, 0, SYNC_OP_SEM_WAIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&empty)); //TODO: add in NULL and check empty
         sem_wait(&empty);
        read_fifo_server(fifo_server_read, &request);
-        // logRequest(serverlog, 0, &request);
+        logRequest(serverlog, 0, &request);
 
         if (request_queue == NULL)
         {
