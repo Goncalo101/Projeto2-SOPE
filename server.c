@@ -120,8 +120,8 @@ void *operations(void *nr)
         // writes answer to user by answer (fifo)
         char final[50];
         create_name_fifo(final, request.value.header.pid);
-        logReply(serverlog, number_office, &t);
         write_fifo_answer(final, &t);
+        logReply(serverlog, number_office, &t);
         change_active(serverlog,number_office, REMOVE_ACTIVE_THREAD);
         sem_post(&empty);
         logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, request.value.header.pid, get_sem_value(&empty));

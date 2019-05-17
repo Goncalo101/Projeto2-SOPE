@@ -42,18 +42,23 @@ int main(int argc, char *argv[])
     //-------------------------------------
 
     //--WRITE REQUEST FROM USER TO SERVER -----
+    tlv_reply_t reply;
     
     logRequest(userlog,getpid(),&t);
-    write_fifo_server(&t);
-    //-------------------------------------
-
+    if (write_fifo_server(&t) == RC_SRV_DOWN)
+    {
+        reply.value.header.ret_code = RC_SRV_DOWN;
+        logReply(userlog, getpid(), &reply);
+    }
+    else
+    {
     //--READ REPLY FROM SERVER TO USER---------
-    tlv_reply_t reply;
 
-    read_fifo_answer(final, &reply); //TODO:wait for 30s
+    read_fifo_answer(final, &reply); //TODO:wait for 30s not forget RC_TIMEOUT
     logReply(userlog, getpid(), &reply);
     //-------------------------------------
-
+    }
+    
     unlink(final);
     return 0;
 }

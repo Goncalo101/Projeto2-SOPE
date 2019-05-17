@@ -30,13 +30,17 @@ void read_fifo_server(tlv_request_t *t)
     close(fifo_server_read);
 }
 
-void write_fifo_server(tlv_request_t *to_write)
+ret_code_t write_fifo_server(tlv_request_t *to_write)
 {
     int fifo_server_write = open(SERVER_FIFO_PATH, O_WRONLY);
-
+    
+    if (fifo_server_write == -1) 
+       return RC_SRV_DOWN;
 
     write(fifo_server_write, to_write, sizeof(tlv_request_t));
     close(fifo_server_write);
+
+    return RC_OK;
 }
 
 void write_fifo_answer(char *name, tlv_reply_t *to_write)
