@@ -16,9 +16,9 @@
 #include "argcheck.h"
 
 static node_t *request_queue;
-
 uint32_t shutdown = 0;
 static int serverlog;
+static int fifo_server_write = 0;
 
 sem_t empty, full;
 
@@ -47,14 +47,17 @@ void *operations(void *nr)
     tlv_reply_t t;
     tlv_request_t request;
 
-    while (!shutdown && list_size(request_queue) != 0)
+    while (!shutdown)
     {
         logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_WAIT, SYNC_ROLE_CONSUMER, 0, get_sem_value(&full));
         sem_wait(&full);
+        change_active(serverlog,number_office, ADD_ACTIVE_THREAD);
         request = get_request();
         logRequest(serverlog, number_office, &request);
 
-        return_code = authenticate_user(request.value.header.account_id, request.value.header.op_delay_ms, request.value.header.password, serverlog,number_office);
+
+
+        return_code = authenticate_user(request.value.header.account_id, request.value.header.op_delay_ms, request.value.header.password, serverlog, number_office);
         if (return_code != 0)
         {
             create_header_struct_a(request.value.create.account_id, return_code, &header);
@@ -107,8 +110,8 @@ void *operations(void *nr)
                 uint32_t active;
                 rep_shutdown_t shutdown_str;
 
-                handle_shutdown(request.value.header.account_id, &shutdown, &active, request.value.header.op_delay_ms, serverlog);
-                create_shutdown_struct_a(0, &shutdown_str); //TODO:add real numnber of active banks(when threads)
+                handle_shutdown(request.value.header.account_id, &shutdown, &active, request.value.header.op_delay_ms, serverlog, number_office);
+                create_shutdown_struct_a(active, &shutdown_str); 
                 t = join_structs_to_send_a(3, &header, NULL, NULL, &shutdown_str);
 
                 break;
@@ -124,6 +127,7 @@ void *operations(void *nr)
             return RC_USR_DOWN;
         logReply(serverlog, number_office, &t);
         write_fifo_answer(fifo_answer_write, &t);
+        change_active(serverlog,number_office, REMOVE_ACTIVE_THREAD);
         sem_post(&empty);
         logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, request.value.header.pid, get_sem_value(&empty));
     }
@@ -142,14 +146,13 @@ int main(int argc, char *argv[])
     int nbr_balconies = atoi(argv[1]);
 
     serverlog = open(SERVER_LOGFILE, O_WRONLY | O_CREAT, 0644);
-    
+
     create_admin_account(argv[2], serverlog);
 
     mkfifo(SERVER_FIFO_PATH, 0660);
 
-
     int fifo_server_read = open(SERVER_FIFO_PATH, O_RDONLY);
-    int fifo_server_write = open(SERVER_FIFO_PATH, O_WRONLY);
+    fifo_server_write = open(SERVER_FIFO_PATH, O_WRONLY);
     if (fifo_server_read == -1 || fifo_server_write == -1)
         return RC_SRV_DOWN;
 
@@ -169,13 +172,13 @@ int main(int argc, char *argv[])
     }
 
     tlv_request_t request;
+
+    
     while (!shutdown)
     {
-        printf("lock\n");
-
         logSyncMechSem(serverlog, 0, SYNC_OP_SEM_WAIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&empty)); //TODO: add in NULL and check empty
         sem_wait(&empty);
-        read_fifo_server(fifo_server_read, &request);
+       read_fifo_server(fifo_server_read, &request);
         logRequest(serverlog, 0, &request);
 
         if (request_queue == NULL)
@@ -191,15 +194,15 @@ int main(int argc, char *argv[])
 
         sem_post(&full);
         logSyncMechSem(serverlog, 0, SYNC_OP_SEM_POST, SYNC_ROLE_PRODUCER, request.value.header.pid, get_sem_value(&full));
-
-        printf("unlock\n");
+        
+               
     }
 
     for (int k = 0; k < nbr_balconies; k++)
     {
-        printf("joining thread num: %d, id: %lu\n", k, tidf[k]);
+        // printf("joining thread num: %d, id: %lu\n", k, tidf[k]);
         pthread_join(tidf[k], NULL);
-        logBankOfficeClose(serverlog,0,tidf[k]);
+        logBankOfficeClose(serverlog, 0, tidf[k]);
     }
 
     close(fifo_server_read);

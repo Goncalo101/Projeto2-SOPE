@@ -8,7 +8,20 @@
 
 static uint32_t account_ids[MAX_BANK_ACCOUNTS] = {0};
 static pthread_mutex_t account_mutexes[MAX_BANK_ACCOUNTS] = PTHREAD_MUTEX_INITIALIZER;
+static uint32_t active_threads = 0;
+static pthread_mutex_t active_thrds = PTHREAD_MUTEX_INITIALIZER;
 
+void change_active(int fildes, int number_office, int flag)
+{
+    pthread_mutex_lock(&active_thrds);
+    logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, 0);
+    if (flag == ADD_ACTIVE_THREAD)
+        active_threads++;
+    else if (flag == REMOVE_ACTIVE_THREAD)
+        active_threads--;
+    pthread_mutex_unlock(&active_thrds);
+    logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, 0);
+}
 void insert_account(bank_account_t account)
 {
     accounts[account.account_id] = account;
@@ -175,12 +188,17 @@ ret_code_t handle_balance_request(uint32_t delay, uint32_t id, uint32_t *balance
     }
 }
 
-ret_code_t handle_shutdown(uint32_t id, uint32_t *shutdown, uint32_t *active_nbr, uint32_t delay, int fildes)
+ret_code_t handle_shutdown(uint32_t id, uint32_t *shutdown, uint32_t *active_nbr, uint32_t delay, int fildes, int number_office)
 {
     if (id == 0)
     {
         *shutdown = 1;
-        *active_nbr = 1; //TODO:add real number of active threads
+        pthread_mutex_lock(&active_thrds);
+        logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, 0);
+        *active_nbr = active_threads;
+        printf("active threads %d \n", active_threads);
+        pthread_mutex_unlock(&active_thrds);
+        logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, 0);
 
         op_delay(delay, 0, fildes);
         chmod(SERVER_FIFO_PATH, 0444);

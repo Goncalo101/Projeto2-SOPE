@@ -22,7 +22,7 @@ void read_fifo_answer(int fifo, tlv_reply_t *t)
 
 void read_fifo_server(int fifo, tlv_request_t *t)
 {
-    read(fifo, t, sizeof(tlv_request_t));
+    int r = read(fifo, t, sizeof(tlv_request_t));
 }
 
 void write_fifo_server(int fifo, tlv_request_t *to_write)
