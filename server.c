@@ -55,12 +55,11 @@ void *operations(void *nr)
         logRequest(serverlog, number_office, &request);
 
 
-
         return_code = authenticate_user(request.value.header.account_id, request.value.header.op_delay_ms, request.value.header.password, serverlog, number_office);
         if (return_code != 0)
         {
             create_header_struct_a(request.value.create.account_id, return_code, &header);
-            t = join_structs_to_send_a(0, &header, NULL, NULL, NULL);
+            t = join_structs_to_send_a(request.type, &header, NULL, NULL, NULL);
         }
         else
         {
@@ -92,6 +91,7 @@ void *operations(void *nr)
             }
             case 2: // transference
             {
+                printf("oi\n");
                 rep_transfer_t transfer;
 
                 return_code = transfer_money(request.value.header.account_id,
