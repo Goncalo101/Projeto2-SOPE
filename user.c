@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     }
 
     //--OPEN LOG FILE ---------------------
-    userlog = open(USER_LOGFILE, O_WRONLY | O_CREAT , 0644);
+    userlog = open(USER_LOGFILE, O_WRONLY | O_CREAT | O_APPEND, 0644);
     //-------------------------------------
 
     //--PROCESS ARGUMENTS--------------
