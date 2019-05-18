@@ -24,7 +24,6 @@ void read_fifo_answer(char* name, tlv_reply_t* t)
     
     if (errno == EINTR) {
         t->value.header.ret_code = RC_SRV_TIMEOUT;
-        return;
     }
 
     close(fifo_answer_read);
