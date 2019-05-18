@@ -188,7 +188,6 @@ ret_code_t handle_shutdown(uint32_t id, uint32_t* shutdown, uint32_t* active_nbr
         pthread_mutex_lock(&active_thrds);
         logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, 0);
         *active_nbr = active_threads;
-        printf("active threads %d \n", active_threads);
         pthread_mutex_unlock(&active_thrds);
         logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, 0);
 

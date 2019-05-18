@@ -18,6 +18,7 @@
 static node_t *request_queue;
 uint32_t shutdown = 0;
 static int serverlog;
+int nbr_balconies = 0;
 
 sem_t empty, full;
 
@@ -46,13 +47,10 @@ void *operations(void *nr)
     tlv_reply_t t;
     tlv_request_t request;
 
-    while (!(shutdown && list_size_empty(request_queue)))
+    while (!(shutdown))
     {
         logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_WAIT, SYNC_ROLE_CONSUMER, 0, get_sem_value(&full));
-
-        printf("ola\n");
         sem_wait(&full);
-        printf("batatas\n");
 
         if (list_size_empty(request_queue))
         {
@@ -119,9 +117,13 @@ void *operations(void *nr)
                 handle_shutdown(request.value.header.account_id, &shutdown, &active, request.value.header.op_delay_ms, serverlog, number_office);
                 create_shutdown_struct_a(active, &shutdown_str);
                 t = join_structs_to_send_a(3, &header, NULL, NULL, &shutdown_str);
-                sem_post(&full);
-                logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, 0, get_sem_value(&full));
-                printf("cfvgbhnjmk\n");
+
+                for (int i = 0; i < nbr_balconies ; i++)
+                {
+                    sem_post(&full);
+                    logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, 0, get_sem_value(&full));
+                }
+
                 break;
             }
             }
@@ -136,7 +138,6 @@ void *operations(void *nr)
         sem_post(&empty);
         logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, request.value.header.pid, get_sem_value(&empty));
     }
-    printf("bananas\n");
     return NULL;
 }
 
@@ -148,7 +149,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    int nbr_balconies = atoi(argv[1]);
+    nbr_balconies = atoi(argv[1]);
 
     serverlog = open(SERVER_LOGFILE, O_WRONLY | O_CREAT, 0644);
 
@@ -194,6 +195,8 @@ int main(int argc, char *argv[])
         sem_post(&full);
         logSyncMechSem(serverlog, 0, SYNC_OP_SEM_POST, SYNC_ROLE_PRODUCER, request.value.header.pid, get_sem_value(&full));
     }
+
+    printf("mamamama\n");
 
     for (int k = 0; k < nbr_balconies; k++)
     {
