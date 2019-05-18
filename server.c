@@ -26,7 +26,8 @@ int interrupted = 0;
 sem_t empty, full;
 
 void sigusr_handler(int sig) {
-    interrupted = 1;
+    if (sig == SIGUSR1)
+        interrupted = 1;
 }
 
 int get_sem_value(sem_t *t)
@@ -138,6 +139,7 @@ void *operations(void *nr)
 
                 break;
             }
+            default:break;
             }
         }
         sem_post(&empty);

@@ -58,7 +58,7 @@ int write_fifo_server(tlv_request_t *to_write, ret_code_t *a)
     int fifo_server_write = open(SERVER_FIFO_PATH, O_WRONLY);
 
      if (fifo_server_write == -1)
-        a = RC_USR_DOWN;
+        *a = __RC_MAX_NUMBER;
 
     write(fifo_server_write, to_write, sizeof(tlv_request_t));
 
