@@ -61,6 +61,8 @@ void *operations(void *nr)
     {
         logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_WAIT, SYNC_ROLE_CONSUMER, 0, get_sem_value(&full));
         sem_wait(&full);
+        
+
 
         if (list_size_empty(request_queue))
         {
@@ -147,6 +149,7 @@ void *operations(void *nr)
         write_fifo_answer(final, &t);
         logReply(serverlog, number_office, &t);
         change_active(serverlog, number_office, REMOVE_ACTIVE_THREAD);
+           printf("rvvvv\n");
     }
     
     pthread_kill(main_thread, SIGUSR1);
@@ -198,7 +201,6 @@ int main(int argc, char *argv[])
         sem_wait(&empty);
         if (interrupted) break;
         read_srv = read_fifo_server(&request);
-        
 
         if (!interrupted) {
             logRequest(serverlog, 0, &request);
