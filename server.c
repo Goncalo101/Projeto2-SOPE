@@ -15,13 +15,13 @@
 #include "sope.h"
 #include "types.h"
 
-static node_t* request_queue;
+static node_t *request_queue;
 uint32_t shutdown = 0;
 static int serverlog;
 
 sem_t empty, full;
 
-int get_sem_value(sem_t* t)
+int get_sem_value(sem_t *t)
 {
     int value;
     if (sem_getvalue(t, &value) != -1)
@@ -37,32 +37,46 @@ tlv_request_t get_request()
     return request;
 }
 
-void* operations(void* nr)
+void *operations(void *nr)
 {
-    int number_office = *(int*)nr;
+    int number_office = *(int *)nr;
 
     ret_code_t return_code;
     rep_header_t header;
     tlv_reply_t t;
     tlv_request_t request;
 
-    while (!shutdown) {
+    while (!(shutdown && list_size_empty(request_queue)))
+    {
         logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_WAIT, SYNC_ROLE_CONSUMER, 0, get_sem_value(&full));
+
+        printf("ola\n");
         sem_wait(&full);
+        printf("batatas\n");
+
+        if (list_size_empty(request_queue))
+        {
+            break;
+        }
+
         change_active(serverlog, number_office, ADD_ACTIVE_THREAD);
         request = get_request();
         logRequest(serverlog, number_office, &request);
 
         return_code = authenticate_user(request.value.header.account_id, request.value.header.op_delay_ms, request.value.header.password, serverlog, number_office);
-        if (return_code != 0) {
+        if (return_code != 0)
+        {
             create_header_struct_a(request.value.create.account_id, return_code, &header);
             t = join_structs_to_send_a(request.type, &header, NULL, NULL, NULL);
-        } else {
+        }
+        else
+        {
             switch (request.type) // TODO: catch return codes
             {
             case 0: // create account
             {
-                if (return_code == 0) {
+                if (return_code == 0)
+                {
                     return_code = create_account(
                         request.value.create.password, request.value.create.balance,
                         request.value.create.account_id, request.value.header.account_id, request.value.header.op_delay_ms, serverlog, number_office);
@@ -78,7 +92,7 @@ void* operations(void* nr)
                 uint32_t balance_nbr = 0;
 
                 handle_balance_request(request.value.header.op_delay_ms,
-                    request.value.header.account_id, &balance_nbr, serverlog, number_office);
+                                       request.value.header.account_id, &balance_nbr, serverlog, number_office);
                 create_balance_struct_a(balance_nbr, &balance);
                 t = join_structs_to_send_a(1, &header, &balance, NULL, NULL);
                 break;
@@ -88,8 +102,8 @@ void* operations(void* nr)
                 rep_transfer_t transfer;
 
                 return_code = transfer_money(request.value.header.account_id,
-                    request.value.transfer.account_id,
-                    request.value.transfer.amount, request.value.header.op_delay_ms, serverlog, number_office);
+                                             request.value.transfer.account_id,
+                                             request.value.transfer.amount, request.value.header.op_delay_ms, serverlog, number_office);
                 create_header_struct_a(request.value.header.account_id, return_code, &header);
 
                 transfer.balance = accounts[request.value.header.account_id].balance;
@@ -105,7 +119,9 @@ void* operations(void* nr)
                 handle_shutdown(request.value.header.account_id, &shutdown, &active, request.value.header.op_delay_ms, serverlog, number_office);
                 create_shutdown_struct_a(active, &shutdown_str);
                 t = join_structs_to_send_a(3, &header, NULL, NULL, &shutdown_str);
-
+                sem_post(&full);
+                logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, 0, get_sem_value(&full));
+                printf("cfvgbhnjmk\n");
                 break;
             }
             }
@@ -120,13 +136,14 @@ void* operations(void* nr)
         sem_post(&empty);
         logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, request.value.header.pid, get_sem_value(&empty));
     }
-
+    printf("bananas\n");
     return NULL;
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-    if (argc != 3 || check_server_arguments(argv[1], argv[2])) {
+    if (argc != 3 || check_server_arguments(argv[1], argv[2]))
+    {
         printf("Wrong Usage: server <front office nr (<= %d )> <admin password> \n", MAX_BANK_OFFICES);
         exit(1);
     }
@@ -147,25 +164,30 @@ int main(int argc, char* argv[])
     pthread_t tidf[nbr_balconies];
     int ids[nbr_balconies];
 
-    for (int k = 0; k < nbr_balconies; k++) {
+    for (int k = 0; k < nbr_balconies; k++)
+    {
         ids[k] = k + 1;
         pthread_create(&tidf[k], NULL, operations, &ids[k]);
         logBankOfficeOpen(serverlog, 0, tidf[k]);
     }
 
     tlv_request_t request;
-
-    while (!shutdown) {
+    int read_srv = 1;
+    while (!(shutdown && (read_srv == 0)))
+    {
         logSyncMechSem(serverlog, 0, SYNC_OP_SEM_WAIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&empty)); //TODO: add in NULL and check empty
         sem_wait(&empty);
-        read_fifo_server(&request);
+        read_srv = read_fifo_server(&request);
         logRequest(serverlog, 0, &request);
 
-        if (request_queue == NULL) {
+        if (request_queue == NULL)
+        {
             request_queue = malloc(sizeof(node_t));
             request_queue->val = request;
             request_queue->next = NULL;
-        } else {
+        }
+        else
+        {
             push(request_queue, request);
         }
 
@@ -173,7 +195,8 @@ int main(int argc, char* argv[])
         logSyncMechSem(serverlog, 0, SYNC_OP_SEM_POST, SYNC_ROLE_PRODUCER, request.value.header.pid, get_sem_value(&full));
     }
 
-    for (int k = 0; k < nbr_balconies; k++) {
+    for (int k = 0; k < nbr_balconies; k++)
+    {
         pthread_join(tidf[k], NULL);
         logBankOfficeClose(serverlog, 0, tidf[k]);
     }
