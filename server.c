@@ -47,7 +47,6 @@ tlv_request_t get_request()
 
 void *operations(void *nr)
 {
-    // int number_office = *(int *)nr;
 
     thread_args_t args = *(thread_args_t*) nr;
     int number_office = args.nr_office;
@@ -65,7 +64,6 @@ void *operations(void *nr)
 
         if (list_size_empty(request_queue))
         {
-            printf("oi\n");
             break;
         }
 
@@ -141,7 +139,6 @@ void *operations(void *nr)
             }
         }
         sem_post(&empty);
-        printf("hello\n");
         logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, request.value.header.pid, get_sem_value(&empty));
 
         // writes answer to user by answer (fifo)
@@ -152,7 +149,6 @@ void *operations(void *nr)
         change_active(serverlog, number_office, REMOVE_ACTIVE_THREAD);
     }
     
-    printf("bananas\n");
     pthread_kill(main_thread, SIGUSR1);
     return NULL;
 }
@@ -200,7 +196,6 @@ int main(int argc, char *argv[])
     {
         logSyncMechSem(serverlog, 0, SYNC_OP_SEM_WAIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&empty)); //TODO: add in NULL and check empty
         sem_wait(&empty);
-        printf("adeus\n");
         if (interrupted) break;
         read_srv = read_fifo_server(&request);
         
@@ -225,7 +220,6 @@ int main(int argc, char *argv[])
         if (interrupted) break;
     }
 
-    printf("mamamama\n");
 
     for (int k = 0; k < nbr_balconies; k++)
     {
