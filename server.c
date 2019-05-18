@@ -47,13 +47,14 @@ void *operations(void *nr)
     tlv_reply_t t;
     tlv_request_t request;
 
-    while (!(shutdown))
+    while (!(shutdown && list_size_empty(request_queue)))
     {
         logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_WAIT, SYNC_ROLE_CONSUMER, 0, get_sem_value(&full));
         sem_wait(&full);
 
         if (list_size_empty(request_queue))
         {
+            printf("oi\n");
             break;
         }
 
@@ -118,7 +119,7 @@ void *operations(void *nr)
                 create_shutdown_struct_a(active, &shutdown_str);
                 t = join_structs_to_send_a(3, &header, NULL, NULL, &shutdown_str);
 
-                for (int i = 0; i < nbr_balconies ; i++)
+                for (int i = 0; i < nbr_balconies; i++)
                 {
                     sem_post(&full);
                     logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, 0, get_sem_value(&full));
@@ -128,6 +129,9 @@ void *operations(void *nr)
             }
             }
         }
+        sem_post(&empty);
+        printf("hello\n");
+        logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, request.value.header.pid, get_sem_value(&empty));
 
         // writes answer to user by answer (fifo)
         char final[50];
@@ -135,9 +139,8 @@ void *operations(void *nr)
         write_fifo_answer(final, &t);
         logReply(serverlog, number_office, &t);
         change_active(serverlog, number_office, REMOVE_ACTIVE_THREAD);
-        sem_post(&empty);
-        logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, request.value.header.pid, get_sem_value(&empty));
     }
+    printf("bananas\n");
     return NULL;
 }
 
@@ -178,6 +181,7 @@ int main(int argc, char *argv[])
     {
         logSyncMechSem(serverlog, 0, SYNC_OP_SEM_WAIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&empty)); //TODO: add in NULL and check empty
         sem_wait(&empty);
+        printf("adeus\n");
         read_srv = read_fifo_server(&request);
         logRequest(serverlog, 0, &request);
 
