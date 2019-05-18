@@ -54,7 +54,6 @@ void *operations(void *nr)
 
         if (list_size_empty(request_queue))
         {
-            printf("oi\n");
             break;
         }
 
@@ -110,38 +109,51 @@ void *operations(void *nr)
 
                 break;
             }
-            case 3: // shutdown
-            {
-                uint32_t active;
-                rep_shutdown_t shutdown_str;
-
-                handle_shutdown(request.value.header.account_id, &shutdown, &active, request.value.header.op_delay_ms, serverlog, number_office);
-                create_shutdown_struct_a(active, &shutdown_str);
-                t = join_structs_to_send_a(3, &header, NULL, NULL, &shutdown_str);
-
-                for (int i = 0; i < nbr_balconies; i++)
-                {
-                    sem_post(&full);
-                    logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, 0, get_sem_value(&full));
-                }
-
-                break;
-            }
             }
         }
-        sem_post(&empty);
-        printf("hello\n");
-        logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, request.value.header.pid, get_sem_value(&empty));
-
         // writes answer to user by answer (fifo)
         char final[50];
         create_name_fifo(final, request.value.header.pid);
         write_fifo_answer(final, &t);
         logReply(serverlog, number_office, &t);
+        sem_post(&empty);
+        logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, request.value.header.pid, get_sem_value(&empty));
         change_active(serverlog, number_office, REMOVE_ACTIVE_THREAD);
     }
-    printf("bananas\n");
     return NULL;
+}
+
+int handle_shutdown_main(tlv_request_t *request, int number_office)
+{
+    ret_code_t return_code;
+    rep_header_t header;
+    tlv_reply_t t;
+
+    return_code = authenticate_user(request->value.header.account_id, request->value.header.op_delay_ms, request->value.header.password, serverlog, number_office);
+    if (return_code != 0)
+    {
+        create_header_struct_a(request->value.create.account_id, return_code, &header);
+        t = join_structs_to_send_a(request->type, &header, NULL, NULL, NULL);
+    }
+    else
+    {
+        uint32_t active;
+        rep_shutdown_t shutdown_str;
+        handle_shutdown(request->value.header.account_id, &shutdown, &active, request->value.header.op_delay_ms, serverlog, number_office);
+        create_shutdown_struct_a(active, &shutdown_str);
+        t = join_structs_to_send_a(3, &header, NULL, NULL, &shutdown_str);
+
+        for (int i = 0; i < nbr_balconies; i++)
+        {
+            sem_post(&full);
+            logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, 0, get_sem_value(&full));
+        }
+    }
+
+    char final[50];
+    create_name_fifo(final, request->value.header.pid);
+    write_fifo_answer(final, &t);
+    logReply(serverlog, 0, &t);
 }
 
 int main(int argc, char *argv[])
@@ -177,15 +189,19 @@ int main(int argc, char *argv[])
 
     tlv_request_t request;
     int read_srv = 1;
-    while (!(shutdown && (read_srv == 0)))
+    while (!(shutdown))
     {
         logSyncMechSem(serverlog, 0, SYNC_OP_SEM_WAIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&empty)); //TODO: add in NULL and check empty
         sem_wait(&empty);
-        printf("adeus\n");
         read_srv = read_fifo_server(&request);
         logRequest(serverlog, 0, &request);
 
-        if (request_queue == NULL)
+        if (request.type == 3)
+        {
+            handle_shutdown_main(&request, nbr_balconies);
+            printf("meias\n");
+        }
+        else if (request_queue == NULL)
         {
             request_queue = malloc(sizeof(node_t));
             request_queue->val = request;
@@ -200,7 +216,7 @@ int main(int argc, char *argv[])
         logSyncMechSem(serverlog, 0, SYNC_OP_SEM_POST, SYNC_ROLE_PRODUCER, request.value.header.pid, get_sem_value(&full));
     }
 
-    printf("mamamama\n");
+    printf("aaaa\n");
 
     for (int k = 0; k < nbr_balconies; k++)
     {

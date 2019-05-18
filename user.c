@@ -52,10 +52,9 @@ int main(int argc, char *argv[])
 
     //--WRITE REQUEST FROM USER TO SERVER -----
     tlv_reply_t reply;
-    ret_code_t a;
     logRequest(userlog, getpid(), &t);
-    int fifo_server_write = write_fifo_server(&t, &a);
-    if (a == -1)
+    int fifo_server_write = write_fifo_server(&t);
+    if (fifo_server_write == RC_SRV_DOWN)
     {
         reply.value.header.ret_code = RC_SRV_DOWN;
         logReply(userlog, getpid(), &reply);
