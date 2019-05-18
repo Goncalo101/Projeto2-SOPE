@@ -12,14 +12,14 @@
 #include <unistd.h>
 
 static const char* OP_TYPE_STR[] = {
-        [OP_CREATE_ACCOUNT] = "CREATE",
+    [OP_CREATE_ACCOUNT] = "CREATE",
     [OP_BALANCE] = "BALANCE",
     [OP_TRANSFER] = "TRANSFER",
     [OP_SHUTDOWN] = "SHUTDOWN"
 };
 
 static const char* RC_STR[] = {
-        [RC_OK] = "OK",
+    [RC_OK] = "OK",
     [RC_SRV_DOWN] = "SRV_DOWN",
     [RC_SRV_TIMEOUT] = "SRV_TIMEOUT",
     [RC_USR_DOWN] = "USR_DOWN",
@@ -34,7 +34,7 @@ static const char* RC_STR[] = {
 };
 
 static const char* SYNC_MECH_STR[] = {
-        [SYNC_OP_MUTEX_LOCK] = "MUTEX_LOCK",
+    [SYNC_OP_MUTEX_LOCK] = "MUTEX_LOCK",
     [SYNC_OP_MUTEX_TRYLOCK] = "MUTEX_TRYLOCK",
     [SYNC_OP_MUTEX_UNLOCK] = "MUTEX_UNLOCK",
     [SYNC_OP_COND_SIGNAL] = "COND_SIGNAL",
@@ -45,7 +45,7 @@ static const char* SYNC_MECH_STR[] = {
 };
 
 static const char* SYNC_ROLE_STR[] = {
-        [SYNC_ROLE_ACCOUNT] = "ACCOUNT",
+    [SYNC_ROLE_ACCOUNT] = "ACCOUNT",
     [SYNC_ROLE_CONSUMER] = "CONSUMER",
     [SYNC_ROLE_PRODUCER] = "PRODUCER"
 };
@@ -164,7 +164,8 @@ int logSyncDelay(int fd, int id, int sid, uint32_t delay_ms)
 
 static int atomicPrintf(int fd, const char* format, ...)
 {
-    static char buffer[PIPE_BUF];
+    //static char buffer[PIPE_BUF]; // replaced
+    char buffer[PIPE_BUF];
     va_list args;
     int ret;
 

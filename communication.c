@@ -1,5 +1,6 @@
 #include "communication.h"
 
+#include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,45 +16,62 @@ void create_name_fifo(char *final, pid_t pid)
     strcat(final, c_pid);
 }
 
-void read_fifo_answer(char *path, tlv_reply_t *t)
+void read_fifo_answer(char *name, tlv_reply_t *t)
 {
-    int fifo = open(path, O_RDONLY);
-    while (fifo == -1)
+    alarm(FIFO_TIMEOUT_SECS);
+    int fifo_answer_read = open(name, O_RDONLY);
+
+    if (fifo_answer_read == -1 && errno == EINTR)
     {
-        sleep(1);
-        fifo = open(path, O_RDONLY);
+        t->value.header.ret_code = RC_SRV_TIMEOUT;
     }
 
-    read(fifo, t, sizeof(*t));
-    close(fifo);
+    int bytes_read = read(fifo_answer_read, t, sizeof(tlv_reply_t));
+
+    if (bytes_read == -1 && errno == EINTR)
+    {
+        t->value.header.ret_code = RC_SRV_TIMEOUT;
+    }
+
+    close(fifo_answer_read);
 }
 
-void read_fifo_server(int fifo, tlv_request_t *t)
+int read_fifo_server(tlv_request_t *t)
 {
-    printf("fd read: %d\n", fifo);
-    int r = 0;
-    // int w = write(fifo + 1, t, sizeof(tlv_request_t));
-    r = read(fifo, t, sizeof(tlv_request_t));
-    printf("after read\n");
-    // while (r == 0)
-    // {
-    //     r = read(fifo, t, sizeof(tlv_request_t));
-        
-    //     if (r == -1)
-    //         perror("");
-    // }
+    int fifo_server_read = open(SERVER_FIFO_PATH, O_RDONLY);
+    if (errno == EINTR) return 0;
+
+    int fifo_server_write = open(SERVER_FIFO_PATH, O_WRONLY);
+    if (errno == EINTR) return 0;
+
+    int read_srv = read(fifo_server_read, t, sizeof(tlv_request_t));
+    if (errno == EINTR) return 0;
+
+    close(fifo_server_read);
+    close(fifo_server_write);
+    return read_srv;
 }
 
-void write_fifo_server(int fifo, tlv_request_t *to_write)
+int write_fifo_server(tlv_request_t *to_write, ret_code_t *a)
 {
-    printf("fd write: %d\n", fifo);
 
-    int w = write(fifo, to_write, sizeof(tlv_request_t));
-    printf("write return: %d \n", w);
+    int fifo_server_write = open(SERVER_FIFO_PATH, O_WRONLY);
+
+     if (fifo_server_write == -1)
+        a = RC_USR_DOWN;
+
+    write(fifo_server_write, to_write, sizeof(tlv_request_t));
+
+    return fifo_server_write;
 }
 
-//TODO: update to right struct
-void write_fifo_answer(int fifo, tlv_reply_t *to_write)
+void write_fifo_answer(char *name, tlv_reply_t *to_write)
 {
-    write(fifo, to_write, sizeof(*to_write));
+    int fifo_answer_write = open(name, O_WRONLY);
+
+    if (fifo_answer_write == -1)
+        to_write->value.header.ret_code = RC_USR_DOWN;
+
+    write(fifo_answer_write, to_write, sizeof(tlv_reply_t));
+    close(fifo_answer_write);
 }
