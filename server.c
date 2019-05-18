@@ -151,7 +151,6 @@ void *operations(void *nr)
         write_fifo_answer(final, &t);
         logReply(serverlog, number_office, &t);
         change_active(serverlog, number_office, REMOVE_ACTIVE_THREAD);
-           printf("rvvvv\n");
     }
     
     pthread_kill(main_thread, SIGUSR1);

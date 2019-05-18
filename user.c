@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     User_flag flag;
     if (addflag(argv, &flag) != 0)
     {
-        printf("wrong arguments\n");
+        printf("Wrong arguments\n");
         exit(0);
     }
 
