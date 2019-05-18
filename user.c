@@ -14,7 +14,6 @@
 static int userlog;
 
 void sigalrm_handler(int sig) {
-    printf("sigalrm caught\n");
 }
 
 int main(int argc, char* argv[])
