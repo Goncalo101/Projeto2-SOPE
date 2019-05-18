@@ -114,6 +114,7 @@ void* operations(void* nr)
         // writes answer to user by answer (fifo)
         char final[50];
         create_name_fifo(final, request.value.header.pid);
+        sleep(31);
         write_fifo_answer(final, &t);
         logReply(serverlog, number_office, &t);
         change_active(serverlog, number_office, REMOVE_ACTIVE_THREAD);
@@ -158,7 +159,9 @@ int main(int argc, char* argv[])
     while (!shutdown) {
         logSyncMechSem(serverlog, 0, SYNC_OP_SEM_WAIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&empty)); //TODO: add in NULL and check empty
         sem_wait(&empty);
+        printf("before read\n");
         read_fifo_server(&request);
+        printf("after read\n");
         logRequest(serverlog, 0, &request);
 
         if (request_queue == NULL) {

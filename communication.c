@@ -18,11 +18,16 @@ void create_name_fifo(char* final, pid_t pid)
 
 void read_fifo_answer(char* name, tlv_reply_t* t)
 {
-    int fifo_answer_read = open(name, O_RDONLY);
     alarm(FIFO_TIMEOUT_SECS);
-    read(fifo_answer_read, t, sizeof(tlv_reply_t));
+    int fifo_answer_read = open(name, O_RDONLY);
     
-    if (errno == EINTR) {
+    if (fifo_answer_read == -1 && errno == EINTR) {
+        t->value.header.ret_code = RC_SRV_TIMEOUT;
+    }
+
+    int bytes_read = read(fifo_answer_read, t, sizeof(tlv_reply_t));
+    
+    if (bytes_read == -1 && errno == EINTR) {
         t->value.header.ret_code = RC_SRV_TIMEOUT;
     }
 

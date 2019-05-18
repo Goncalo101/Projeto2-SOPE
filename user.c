@@ -1,4 +1,5 @@
 #include <fcntl.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -12,6 +13,10 @@
 
 static int userlog;
 
+void sigalrm_handler(int sig) {
+    printf("sigalrm caught\n");
+}
+
 int main(int argc, char* argv[])
 {
     if (argc != 6) {
@@ -22,6 +27,10 @@ int main(int argc, char* argv[])
     //--OPEN LOG FILE ---------------------
     userlog = open(USER_LOGFILE, O_WRONLY | O_CREAT | O_APPEND, 0644);
     //-------------------------------------
+    struct sigaction action;
+    action.sa_handler = sigalrm_handler;
+
+    sigaction(SIGALRM, &action, NULL);
 
     //--PROCESS ARGUMENTS--------------
     User_flag flag;
