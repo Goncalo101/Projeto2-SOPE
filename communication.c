@@ -39,9 +39,16 @@ void read_fifo_answer(char *name, tlv_reply_t *t)
 int read_fifo_server(tlv_request_t *t)
 {
     int fifo_server_read = open(SERVER_FIFO_PATH, O_RDONLY);
+    if (errno == EINTR) return 0;
+
+    int fifo_server_write = open(SERVER_FIFO_PATH, O_WRONLY);
+    if (errno == EINTR) return 0;
+
     int read_srv = read(fifo_server_read, t, sizeof(tlv_request_t));
+    if (errno == EINTR) return 0;
 
     close(fifo_server_read);
+    close(fifo_server_write);
     return read_srv;
 }
 

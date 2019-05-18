@@ -1,6 +1,7 @@
 #include <fcntl.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,14 +14,20 @@
 #include "communication.h"
 #include "linked_list.h"
 #include "sope.h"
+#include "thread_args.h"
 #include "types.h"
 
 static node_t *request_queue;
 uint32_t shutdown = 0;
 static int serverlog;
 int nbr_balconies = 0;
+int interrupted = 0;
 
 sem_t empty, full;
+
+void sigusr_handler(int sig) {
+    interrupted = 1;
+}
 
 int get_sem_value(sem_t *t)
 {
@@ -40,7 +47,11 @@ tlv_request_t get_request()
 
 void *operations(void *nr)
 {
-    int number_office = *(int *)nr;
+    // int number_office = *(int *)nr;
+
+    thread_args_t args = *(thread_args_t*) nr;
+    int number_office = args.nr_office;
+    pthread_t main_thread = args.main_thread;
 
     ret_code_t return_code;
     rep_header_t header;
@@ -140,7 +151,9 @@ void *operations(void *nr)
         logReply(serverlog, number_office, &t);
         change_active(serverlog, number_office, REMOVE_ACTIVE_THREAD);
     }
+    
     printf("bananas\n");
+    pthread_kill(main_thread, SIGUSR1);
     return NULL;
 }
 
@@ -160,17 +173,23 @@ int main(int argc, char *argv[])
 
     mkfifo(SERVER_FIFO_PATH, 0660);
 
+    struct sigaction action;
+    action.sa_handler = sigusr_handler;
+
+    sigaction(SIGUSR1, &action, NULL);
+
     logSyncMechSem(serverlog, 0, SYNC_OP_SEM_INIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&empty));
     sem_init(&empty, 0, 1);
     logSyncMechSem(serverlog, 0, SYNC_OP_SEM_INIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&full));
     sem_init(&full, 0, 0);
 
     pthread_t tidf[nbr_balconies];
-    int ids[nbr_balconies];
+    thread_args_t ids[nbr_balconies];
 
     for (int k = 0; k < nbr_balconies; k++)
     {
-        ids[k] = k + 1;
+        ids[k].nr_office = k + 1;
+        ids[k].main_thread = pthread_self();
         pthread_create(&tidf[k], NULL, operations, &ids[k]);
         logBankOfficeOpen(serverlog, 0, tidf[k]);
     }
@@ -182,22 +201,28 @@ int main(int argc, char *argv[])
         logSyncMechSem(serverlog, 0, SYNC_OP_SEM_WAIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&empty)); //TODO: add in NULL and check empty
         sem_wait(&empty);
         printf("adeus\n");
+        if (interrupted) break;
         read_srv = read_fifo_server(&request);
-        logRequest(serverlog, 0, &request);
+        
 
-        if (request_queue == NULL)
-        {
-            request_queue = malloc(sizeof(node_t));
-            request_queue->val = request;
-            request_queue->next = NULL;
-        }
-        else
-        {
-            push(request_queue, request);
+        if (!interrupted) {
+            logRequest(serverlog, 0, &request);
+
+            if (request_queue == NULL)
+            {
+                request_queue = malloc(sizeof(node_t));
+                request_queue->val = request;
+                request_queue->next = NULL;
+            }
+            else
+            {
+                push(request_queue, request);
+            }
         }
 
         sem_post(&full);
         logSyncMechSem(serverlog, 0, SYNC_OP_SEM_POST, SYNC_ROLE_PRODUCER, request.value.header.pid, get_sem_value(&full));
+        if (interrupted) break;
     }
 
     printf("mamamama\n");

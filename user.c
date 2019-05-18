@@ -13,9 +13,7 @@
 
 static int userlog;
 
-void sigalrm_handler(int sig)
-{
-}
+void sigalrm_handler(int sig) {}
 
 int main(int argc, char *argv[])
 {
