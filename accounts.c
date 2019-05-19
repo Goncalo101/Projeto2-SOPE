@@ -206,10 +206,8 @@ ret_code_t handle_balance_request(uint32_t delay, uint32_t id, uint32_t *balance
 
 ret_code_t handle_shutdown(uint32_t id, uint32_t *shutdown, uint32_t *active_nbr, uint32_t delay, int fildes, int number_office)
 {
-    printf("sutdown id %d\n", id);
     if (id == 0)
     {
-        printf("oi\n");
         *shutdown = 1;
         pthread_mutex_lock(&active_thrds);
         logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, 0);
