@@ -83,6 +83,13 @@ ret_code_t create_account(char *password, uint32_t balance, uint32_t new_id, uin
     return RC_OK;
 }
 
+void unlock_mutex(uint32_t sender_id, uint32_t receiver_id, int fildes, int number_office) {
+    pthread_mutex_unlock(&account_mutexes[sender_id]);
+        logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, sender_id);
+        pthread_mutex_unlock(&account_mutexes[receiver_id]);
+        logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, receiver_id);
+}
+
 ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t value, uint32_t delay, int fildes, int number_office)
 {
     // check if accounts are the same
@@ -101,32 +108,28 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
     // necessary to check if the sender exists)
     if (account_ids[sender_id] == 0 || account_ids[receiver_id] == 0)
     {
-        pthread_mutex_unlock(&account_mutexes[sender_id]);
-        logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, sender_id);
+        unlock_mutex(sender_id, receiver_id, fildes, number_office);
         return RC_ID_NOT_FOUND;
     }
 
     // check if sender's balance would be too low
-    if (MIN_BALANCE < accounts[sender_id].balance + value)
+    if (accounts[sender_id].balance < (MIN_BALANCE + value))
     {
-        pthread_mutex_unlock(&account_mutexes[sender_id]);
-        logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, sender_id);
-        pthread_mutex_unlock(&account_mutexes[receiver_id]);
-        logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, receiver_id);
+        unlock_mutex(sender_id, receiver_id, fildes, number_office);
         return RC_NO_FUNDS;
     }
 
     // check if receiver's balance would be too high
-    if (accounts[sender_id].balance + value > MAX_BALANCE)
+    if (accounts[receiver_id].balance > (MAX_BALANCE - value))
     {
+        unlock_mutex(sender_id, receiver_id, fildes, number_office);
         return RC_TOO_HIGH;
-        pthread_mutex_unlock(&account_mutexes[sender_id]);
-        logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, sender_id);
-        pthread_mutex_unlock(&account_mutexes[receiver_id]);
-        logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, receiver_id);
     }
 
     accounts[sender_id].balance -= value;
+    accounts[receiver_id].balance += value;
+
+    unlock_mutex(sender_id, receiver_id, fildes, number_office);
 
     return RC_OK;
 }
