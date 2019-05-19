@@ -14,7 +14,7 @@ user: $(USR) $(COMN)
 	$(CC) -o $@ $^ $(CFLAGS)
 
 server:  $(SRV) $(COMN) 
-	$(CC) -o $@ $^ $(CFLAGS) -lpthread
+	$(CC) -o $@ $^ $(CFLAGS) -lpthread -D_REENTRANT
 
 clean:
 	rm -f *.o user server /tmp/secure* /tmp/pipe* ulog.txt slog.txt

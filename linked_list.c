@@ -18,7 +18,6 @@ void push(node_t* head, tlv_request_t val)
 int list_size_empty(node_t* head)
 {
 
-    node_t* current = head;
     if (head == NULL) {
         return 1;
     } else

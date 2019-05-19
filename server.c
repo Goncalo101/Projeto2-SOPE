@@ -26,7 +26,8 @@ int interrupted = 0;
 sem_t empty, full;
 
 void sigusr_handler(int sig) {
-    interrupted = 1;
+    if (sig == SIGUSR1)
+        interrupted = 1;
 }
 
 int get_sem_value(sem_t *t)
@@ -141,6 +142,7 @@ void *operations(void *nr)
 
                 break;
             }
+            default:break;
             }
         }
         sem_post(&empty);
@@ -152,7 +154,6 @@ void *operations(void *nr)
         write_fifo_answer(final, &t);
         logReply(serverlog, number_office, &t);
         change_active(serverlog, number_office, REMOVE_ACTIVE_THREAD);
-           printf("rvvvv\n");
     }
     
     pthread_kill(main_thread, SIGUSR1);

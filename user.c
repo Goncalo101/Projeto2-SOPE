@@ -13,7 +13,10 @@
 
 static int userlog;
 
-void sigalrm_handler(int sig) {}
+void sigalrm_handler(int sig) {
+    if (sig == SIGALRM)
+        return;
+}
 
 int main(int argc, char *argv[])
 {
@@ -35,7 +38,7 @@ int main(int argc, char *argv[])
     User_flag flag;
     if (addflag(argv, &flag) != 0)
     {
-        printf("wrong arguments\n");
+        printf("Wrong arguments\n");
         exit(0);
     }
 
@@ -53,7 +56,7 @@ int main(int argc, char *argv[])
     ret_code_t a;
     logRequest(userlog, getpid(), &t);
     int fifo_server_write = write_fifo_server(&t, &a);
-    if (a == -1)
+    if (a == __RC_MAX_NUMBER)
     {
         reply.value.header.ret_code = RC_SRV_DOWN;
         logReply(userlog, getpid(), &reply);
