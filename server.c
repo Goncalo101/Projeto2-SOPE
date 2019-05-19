@@ -25,7 +25,8 @@ int interrupted = 0;
 
 sem_t empty, full;
 
-void sigusr_handler(int sig) {
+void sigusr_handler(int sig)
+{
     if (sig == SIGUSR1)
         interrupted = 1;
 }
@@ -46,10 +47,11 @@ tlv_request_t get_request()
     return request;
 }
 
+//Balconies' operations
 void *operations(void *nr)
 {
 
-    thread_args_t args = *(thread_args_t*) nr;
+    thread_args_t args = *(thread_args_t *)nr;
     int number_office = args.nr_office;
     pthread_t main_thread = args.main_thread;
 
@@ -62,8 +64,6 @@ void *operations(void *nr)
     {
         logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_WAIT, SYNC_ROLE_CONSUMER, 0, get_sem_value(&full));
         sem_wait(&full);
-        
-
 
         if (list_size_empty(request_queue))
         {
@@ -71,6 +71,8 @@ void *operations(void *nr)
         }
 
         change_active(serverlog, number_office, ADD_ACTIVE_THREAD);
+
+        //Get request from queue
         request = get_request();
         logRequest(serverlog, number_office, &request);
 
@@ -82,9 +84,9 @@ void *operations(void *nr)
         }
         else
         {
-            switch (request.type) // TODO: catch return codes
+            switch (request.type)
             {
-            case 0: // create account
+            case 0: //create account
             {
                 if (return_code == 0)
                 {
@@ -97,7 +99,7 @@ void *operations(void *nr)
                 t = join_structs_to_send_a(0, &header, NULL, NULL, NULL);
                 break;
             }
-            case 1: // balance check
+            case 1: //balance check
             {
                 rep_balance_t balance;
                 uint32_t balance_nbr = 0;
@@ -108,20 +110,20 @@ void *operations(void *nr)
                 t = join_structs_to_send_a(1, &header, &balance, NULL, NULL);
                 break;
             }
-            case 2: // transference
+            case 2: //transference
             {
                 rep_transfer_t transfer;
-                uint32_t balance = 0 ;
+                uint32_t balance = 0;
                 return_code = transfer_money(request.value.header.account_id,
                                              request.value.transfer.account_id,
                                              request.value.transfer.amount, request.value.header.op_delay_ms, serverlog, number_office, &balance);
                 create_header_struct_a(request.value.header.account_id, return_code, &header);
-                create_transfer_struct_a(balance,&transfer);
+                create_transfer_struct_a(balance, &transfer);
                 t = join_structs_to_send_a(2, &header, NULL, &transfer, NULL);
 
                 break;
             }
-            case 3: // shutdown
+            case 3: //shutdown
             {
                 uint32_t active;
                 rep_shutdown_t shutdown_str;
@@ -131,32 +133,33 @@ void *operations(void *nr)
                 create_shutdown_struct_a(active, &shutdown_str);
                 t = join_structs_to_send_a(3, &header, NULL, NULL, &shutdown_str);
 
-                if(request.value.header.account_id == 0)
+                if (request.value.header.account_id == 0)
                 {
-                for (int i = 0; i < nbr_balconies; i++)
-                {
-                    sem_post(&full);
-                    logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, 0, get_sem_value(&full));
-                }
+                    for (int i = 0; i < nbr_balconies; i++)
+                    {
+                        sem_post(&full);
+                        logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, 0, get_sem_value(&full));
+                    }
+                    pthread_kill(main_thread, SIGUSR1);
                 }
 
                 break;
             }
-            default:break;
+            default:
+                break;
             }
         }
         sem_post(&empty);
         logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, request.value.header.pid, get_sem_value(&empty));
 
-        // writes answer to user by answer (fifo)
+        //Write reply to /tmp/secure_XXXXX
         char final[50];
         create_name_fifo(final, request.value.header.pid);
         write_fifo_answer(final, &t);
         logReply(serverlog, number_office, &t);
         change_active(serverlog, number_office, REMOVE_ACTIVE_THREAD);
     }
-    
-    pthread_kill(main_thread, SIGUSR1);
+
     return NULL;
 }
 
@@ -170,17 +173,19 @@ int main(int argc, char *argv[])
 
     nbr_balconies = atoi(argv[1]);
 
+    //Open log file
     serverlog = open(SERVER_LOGFILE, O_WRONLY | O_CREAT, 0644);
 
     create_admin_account(argv[2], serverlog);
 
+    //Create fifo /tmp/secure_srv
     mkfifo(SERVER_FIFO_PATH, 0660);
 
     struct sigaction action;
     action.sa_handler = sigusr_handler;
-
     sigaction(SIGUSR1, &action, NULL);
 
+    //Initialize semaphores
     logSyncMechSem(serverlog, 0, SYNC_OP_SEM_INIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&empty));
     sem_init(&empty, 0, 1);
     logSyncMechSem(serverlog, 0, SYNC_OP_SEM_INIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&full));
@@ -189,6 +194,7 @@ int main(int argc, char *argv[])
     pthread_t tidf[nbr_balconies];
     thread_args_t ids[nbr_balconies];
 
+    //Initialize balconies
     for (int k = 0; k < nbr_balconies; k++)
     {
         ids[k].nr_office = k + 1;
@@ -199,14 +205,18 @@ int main(int argc, char *argv[])
 
     tlv_request_t request;
     int read_srv = 1;
+
+    //Process requests from users
     while (!(shutdown && (read_srv == 0)))
     {
         logSyncMechSem(serverlog, 0, SYNC_OP_SEM_WAIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&empty)); //TODO: add in NULL and check empty
         sem_wait(&empty);
-        if (interrupted) break;
+        if (interrupted)
+            break;
         read_srv = read_fifo_server(&request);
 
-        if (!interrupted) {
+        if (!interrupted)
+        {
             logRequest(serverlog, 0, &request);
 
             if (request_queue == NULL)
@@ -223,9 +233,9 @@ int main(int argc, char *argv[])
 
         sem_post(&full);
         logSyncMechSem(serverlog, 0, SYNC_OP_SEM_POST, SYNC_ROLE_PRODUCER, request.value.header.pid, get_sem_value(&full));
-        if (interrupted) break;
+        if (interrupted)
+            break;
     }
-
 
     for (int k = 0; k < nbr_balconies; k++)
     {

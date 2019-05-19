@@ -55,7 +55,6 @@ ret_code_t create_account(char *password, uint32_t balance, uint32_t new_id, uin
     if (account_create_id != 0)
     {
         return RC_OP_NALLOW;
-
     }
 
     pthread_mutex_lock(&account_mutexes[new_id]);
@@ -86,11 +85,12 @@ ret_code_t create_account(char *password, uint32_t balance, uint32_t new_id, uin
     return RC_OK;
 }
 
-void unlock_mutex(uint32_t sender_id, uint32_t receiver_id, int fildes, int number_office) {
+void unlock_mutex(uint32_t sender_id, uint32_t receiver_id, int fildes, int number_office)
+{
     pthread_mutex_unlock(&account_mutexes[sender_id]);
-        logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, sender_id);
-        pthread_mutex_unlock(&account_mutexes[receiver_id]);
-        logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, receiver_id);
+    logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, sender_id);
+    pthread_mutex_unlock(&account_mutexes[receiver_id]);
+    logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, receiver_id);
 }
 
 ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t value, uint32_t delay, int fildes, int number_office, uint32_t *balance)

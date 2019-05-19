@@ -39,26 +39,29 @@ void read_fifo_answer(char *name, tlv_reply_t *t)
 int read_fifo_server(tlv_request_t *t)
 {
     int fifo_server_read = open(SERVER_FIFO_PATH, O_RDONLY);
-    if (errno == EINTR) return 0;
+    if (errno == EINTR)
+        return 0;
 
     int fifo_server_write = open(SERVER_FIFO_PATH, O_WRONLY);
-    if (errno == EINTR) return 0;
+    if (errno == EINTR)
+        return 0;
 
     int read_srv = read(fifo_server_read, t, sizeof(tlv_request_t));
-    if (errno == EINTR) return 0;
+    if (errno == EINTR)
+        return 0;
 
     close(fifo_server_read);
     close(fifo_server_write);
     return read_srv;
 }
 
-int write_fifo_server(tlv_request_t *to_write, ret_code_t *a)
+int write_fifo_server(tlv_request_t *to_write)
 {
 
     int fifo_server_write = open(SERVER_FIFO_PATH, O_WRONLY);
 
-     if (fifo_server_write == -1)
-        *a = __RC_MAX_NUMBER;
+    if (fifo_server_write == -1)
+        return fifo_server_write;
 
     write(fifo_server_write, to_write, sizeof(tlv_request_t));
 

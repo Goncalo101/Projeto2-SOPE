@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-void create_header_struct(User_flag flag, pid_t pid, req_header_t* t)
+void create_header_struct(User_flag flag, pid_t pid, req_header_t *t)
 {
     t->account_id = flag.id;
     t->pid = pid;
@@ -10,7 +10,7 @@ void create_header_struct(User_flag flag, pid_t pid, req_header_t* t)
     t->op_delay_ms = flag.delay;
 }
 
-void create_new_account_struct(User_flag flag, req_create_account_t* create)
+void create_new_account_struct(User_flag flag, req_create_account_t *create)
 {
     uint32_t id = 0;
     uint32_t balance = 0;
@@ -22,7 +22,7 @@ void create_new_account_struct(User_flag flag, req_create_account_t* create)
     strncpy(create->password, password, sizeof(create->password));
 }
 
-void create_transfer_struct(User_flag flag, req_transfer_t* transf)
+void create_transfer_struct(User_flag flag, req_transfer_t *transf)
 {
     uint32_t id = 0;
     uint32_t amount = 0;
@@ -32,7 +32,7 @@ void create_transfer_struct(User_flag flag, req_transfer_t* transf)
     transf->amount = amount;
 }
 
-void create_tlv_request_struct(tlv_request_t* tlv, User_flag flag, req_transfer_t* transf, req_create_account_t* create, req_header_t* header)
+void create_tlv_request_struct(tlv_request_t *tlv, User_flag flag, req_transfer_t *transf, req_create_account_t *create, req_header_t *header)
 {
     req_value_t value;
 
@@ -56,13 +56,18 @@ tlv_request_t join_structs_to_send(User_flag flag)
 
     create_header_struct(flag, getpid(), &header);
 
-    if (flag.opnumber == 0) {
+    if (flag.opnumber == 0)
+    {
         create_new_account_struct(flag, &account);
         create_tlv_request_struct(&tlv, flag, NULL, &account, &header);
-    } else if (flag.opnumber == 2) {
+    }
+    else if (flag.opnumber == 2)
+    {
         create_transfer_struct(flag, &transfer);
         create_tlv_request_struct(&tlv, flag, &transfer, NULL, &header);
-    } else {
+    }
+    else
+    {
         create_tlv_request_struct(&tlv, flag, NULL, NULL, &header);
     }
 

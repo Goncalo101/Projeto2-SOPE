@@ -13,7 +13,8 @@
 
 static int userlog;
 
-void sigalrm_handler(int sig) {
+void sigalrm_handler(int sig)
+{
     if (sig == SIGALRM)
         return;
 }
@@ -26,15 +27,15 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    //--OPEN LOG FILE ---------------------
+    //Open log file
     userlog = open(USER_LOGFILE, O_WRONLY | O_CREAT | O_APPEND, 0644);
-    //-------------------------------------
+
+    //Initialize alarm signal for timeout managment
     struct sigaction action;
     action.sa_handler = sigalrm_handler;
-
     sigaction(SIGALRM, &action, NULL);
 
-    //--PROCESS ARGUMENTS--------------
+    //Process arguments
     User_flag flag;
     if (addflag(argv, &flag) != 0)
     {
@@ -43,30 +44,26 @@ int main(int argc, char *argv[])
     }
 
     tlv_request_t t = join_structs_to_send(flag);
-    //-------------------------------------
 
-    //--CREATE ANSWER FIFO----------------
+    //Create fifo /tmp/secure_XXXXX
     char final[50];
     create_name_fifo(final, getpid());
     mkfifo(final, 0660);
-    //-------------------------------------
 
-    //--WRITE REQUEST FROM USER TO SERVER -----
+    //Write request to /tmp/secure_srv
     tlv_reply_t reply;
-    ret_code_t a;
     logRequest(userlog, getpid(), &t);
-    int fifo_server_write = write_fifo_server(&t, &a);
-    if (a == __RC_MAX_NUMBER)
+    int fifo_server_write = write_fifo_server(&t);
+    if (fifo_server_write == -1)
     {
         reply.value.header.ret_code = RC_SRV_DOWN;
         logReply(userlog, getpid(), &reply);
     }
     else
     {
-        //--READ REPLY FROM SERVER TO USER---------
-        read_fifo_answer(final, &reply); //TODO:wait for 30s not forget RC_TIMEOUT
+        //Read reply from /tmp/secure_XXXXX
+        read_fifo_answer(final, &reply);
         logReply(userlog, getpid(), &reply);
-        //-------------------------------------
     }
 
     close(fifo_server_write);

@@ -8,19 +8,18 @@
 #include "crypto.h"
 #include "types.h"
 
-/*generate salt*/
-//--------------------------------------------------------------------------------------
+//----------------------------Generate salt---------------------------------------------
 static const char alphanum[] = "0123456789"
                                "abcdef";
 
 int stringLength = sizeof(alphanum) - 1;
 
-char genRandom() // Random string generator function.
+char genRandom()
 {
     return alphanum[rand() % stringLength];
 }
 
-void create_salt(char* salt)
+void create_salt(char *salt)
 {
     srand(time(NULL));
 
@@ -29,10 +28,9 @@ void create_salt(char* salt)
 
     salt[SALT_LEN] = '\0';
 }
+//------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------
-
-void create_hash(char* pass, char* salt, char* hash)
+void create_hash(char *pass, char *salt, char *hash)
 {
     char tohash[MAX_PASSWORD_LEN + SALT_LEN + 1];
     strcpy(tohash, pass);
@@ -40,7 +38,7 @@ void create_hash(char* pass, char* salt, char* hash)
     sha256(tohash, hash);
 }
 
-void sha256(const char* file_name, char* result)
+void sha256(const char *file_name, char *result)
 {
     int fd_in[2];
     int fd_out[2];
@@ -51,15 +49,17 @@ void sha256(const char* file_name, char* result)
 
     pid = fork();
 
-    if (pid == 0) {
+    if (pid == 0)
+    {
         close(fd_out[READ]);
         close(fd_in[WRITE]);
         dup2(fd_out[WRITE], STDOUT_FILENO);
         dup2(fd_in[READ], STDIN_FILENO);
 
         execlp("sha256sum", "sha256sum", NULL);
-
-    } else {
+    }
+    else
+    {
         close(fd_out[WRITE]);
         close(fd_in[READ]);
         memset(result, 0, HASH_LEN * sizeof(char));

@@ -48,7 +48,6 @@ tlv_reply_t join_structs_to_send_a(uint32_t opnumber, rep_header_t* header,
     rep_balance_t* balance,
     rep_transfer_t* transfer,
     rep_shutdown_t* shutdown)
-//TODO: add struct with values from the operations to use on the right places and respective return values?
 {
     tlv_reply_t tlv;
     create_tlv_reply_struct(&tlv, opnumber, header, balance, transfer, shutdown);
