@@ -19,10 +19,9 @@ void sigalrm_handler(int sig)
         return;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    if (argc != 6)
-    {
+    if (argc != 6) {
         printf("Wrong Usage: user <id> <password> <delay> <operation nr> <list of arguments> \n");
         exit(1);
     }
@@ -37,8 +36,7 @@ int main(int argc, char *argv[])
 
     //Process arguments
     User_flag flag;
-    if (addflag(argv, &flag) != 0)
-    {
+    if (addflag(argv, &flag) != 0) {
         printf("Wrong arguments\n");
         exit(0);
     }
@@ -54,13 +52,10 @@ int main(int argc, char *argv[])
     tlv_reply_t reply;
     logRequest(userlog, getpid(), &t);
     int fifo_server_write = write_fifo_server(&t);
-    if (fifo_server_write == -1)
-    {
+    if (fifo_server_write == -1) {
         reply.value.header.ret_code = RC_SRV_DOWN;
         logReply(userlog, getpid(), &reply);
-    }
-    else
-    {
+    } else {
         //Read reply from /tmp/secure_XXXXX
         read_fifo_answer(final, &reply);
         logReply(userlog, getpid(), &reply);

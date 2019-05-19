@@ -17,7 +17,7 @@
 #include "thread_args.h"
 #include "types.h"
 
-static node_t *request_queue;
+static node_t* request_queue;
 uint32_t shutdown = 0;
 static int serverlog;
 int nbr_balconies = 0;
@@ -31,7 +31,7 @@ void sigusr_handler(int sig)
         interrupted = 1;
 }
 
-int get_sem_value(sem_t *t)
+int get_sem_value(sem_t* t)
 {
     int value;
     if (sem_getvalue(t, &value) != -1)
@@ -48,10 +48,10 @@ tlv_request_t get_request()
 }
 
 //Balconies' operations
-void *operations(void *nr)
+void* operations(void* nr)
 {
 
-    thread_args_t args = *(thread_args_t *)nr;
+    thread_args_t args = *(thread_args_t*)nr;
     int number_office = args.nr_office;
     pthread_t main_thread = args.main_thread;
 
@@ -60,13 +60,11 @@ void *operations(void *nr)
     tlv_reply_t t;
     tlv_request_t request;
 
-    while (!(shutdown && list_size_empty(request_queue)))
-    {
+    while (!(shutdown && list_size_empty(request_queue))) {
         logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_WAIT, SYNC_ROLE_CONSUMER, 0, get_sem_value(&full));
         sem_wait(&full);
 
-        if (list_size_empty(request_queue))
-        {
+        if (list_size_empty(request_queue)) {
             break;
         }
 
@@ -77,19 +75,14 @@ void *operations(void *nr)
         logRequest(serverlog, number_office, &request);
 
         return_code = authenticate_user(request.value.header.account_id, request.value.header.op_delay_ms, request.value.header.password, serverlog, number_office);
-        if (return_code != 0)
-        {
+        if (return_code != 0) {
             create_header_struct_a(request.value.create.account_id, return_code, &header);
             t = join_structs_to_send_a(request.type, &header, NULL, NULL, NULL);
-        }
-        else
-        {
-            switch (request.type)
-            {
+        } else {
+            switch (request.type) {
             case 0: //create account
             {
-                if (return_code == 0)
-                {
+                if (return_code == 0) {
                     return_code = create_account(
                         request.value.create.password, request.value.create.balance,
                         request.value.create.account_id, request.value.header.account_id, request.value.header.op_delay_ms, serverlog, number_office);
@@ -105,7 +98,7 @@ void *operations(void *nr)
                 uint32_t balance_nbr = 0;
 
                 handle_balance_request(request.value.header.op_delay_ms,
-                                       request.value.header.account_id, &balance_nbr, serverlog, number_office);
+                    request.value.header.account_id, &balance_nbr, serverlog, number_office);
                 create_balance_struct_a(balance_nbr, &balance);
                 t = join_structs_to_send_a(1, &header, &balance, NULL, NULL);
                 break;
@@ -115,8 +108,8 @@ void *operations(void *nr)
                 rep_transfer_t transfer;
                 uint32_t balance = 0;
                 return_code = transfer_money(request.value.header.account_id,
-                                             request.value.transfer.account_id,
-                                             request.value.transfer.amount, request.value.header.op_delay_ms, serverlog, number_office, &balance);
+                    request.value.transfer.account_id,
+                    request.value.transfer.amount, request.value.header.op_delay_ms, serverlog, number_office, &balance);
                 create_header_struct_a(request.value.header.account_id, return_code, &header);
                 create_transfer_struct_a(balance, &transfer);
                 t = join_structs_to_send_a(2, &header, NULL, &transfer, NULL);
@@ -133,10 +126,8 @@ void *operations(void *nr)
                 create_shutdown_struct_a(active, &shutdown_str);
                 t = join_structs_to_send_a(3, &header, NULL, NULL, &shutdown_str);
 
-                if (request.value.header.account_id == 0)
-                {
-                    for (int i = 0; i < nbr_balconies; i++)
-                    {
+                if (request.value.header.account_id == 0) {
+                    for (int i = 0; i < nbr_balconies; i++) {
                         sem_post(&full);
                         logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, 0, get_sem_value(&full));
                     }
@@ -163,10 +154,9 @@ void *operations(void *nr)
     return NULL;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    if (argc != 3 || check_server_arguments(argv[1], argv[2]))
-    {
+    if (argc != 3 || check_server_arguments(argv[1], argv[2])) {
         printf("Wrong Usage: server <front office nr (<= %d )> <admin password> \n", MAX_BANK_OFFICES);
         exit(1);
     }
@@ -174,7 +164,7 @@ int main(int argc, char *argv[])
     nbr_balconies = atoi(argv[1]);
 
     //Open log file
-    serverlog = open(SERVER_LOGFILE, O_WRONLY | O_CREAT, 0644);
+    serverlog = open(SERVER_LOGFILE, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
     create_admin_account(argv[2], serverlog);
 
@@ -195,8 +185,7 @@ int main(int argc, char *argv[])
     thread_args_t ids[nbr_balconies];
 
     //Initialize balconies
-    for (int k = 0; k < nbr_balconies; k++)
-    {
+    for (int k = 0; k < nbr_balconies; k++) {
         ids[k].nr_office = k + 1;
         ids[k].main_thread = pthread_self();
         pthread_create(&tidf[k], NULL, operations, &ids[k]);
@@ -207,26 +196,21 @@ int main(int argc, char *argv[])
     int read_srv = 1;
 
     //Process requests from users
-    while (!(shutdown && (read_srv == 0)))
-    {
+    while (!(shutdown && (read_srv == 0))) {
         logSyncMechSem(serverlog, 0, SYNC_OP_SEM_WAIT, SYNC_ROLE_PRODUCER, 0, get_sem_value(&empty)); //TODO: add in NULL and check empty
         sem_wait(&empty);
         if (interrupted)
             break;
         read_srv = read_fifo_server(&request);
 
-        if (!interrupted)
-        {
+        if (!interrupted) {
             logRequest(serverlog, 0, &request);
 
-            if (request_queue == NULL)
-            {
+            if (request_queue == NULL) {
                 request_queue = malloc(sizeof(node_t));
                 request_queue->val = request;
                 request_queue->next = NULL;
-            }
-            else
-            {
+            } else {
                 push(request_queue, request);
             }
         }
@@ -237,8 +221,7 @@ int main(int argc, char *argv[])
             break;
     }
 
-    for (int k = 0; k < nbr_balconies; k++)
-    {
+    for (int k = 0; k < nbr_balconies; k++) {
         pthread_join(tidf[k], NULL);
         logBankOfficeClose(serverlog, 0, tidf[k]);
     }

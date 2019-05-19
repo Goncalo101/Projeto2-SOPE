@@ -33,4 +33,3 @@ int addflag(char* argv[], User_flag* flag)
 
     return 0;
 }
-
