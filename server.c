@@ -111,13 +111,12 @@ void *operations(void *nr)
             case 2: // transference
             {
                 rep_transfer_t transfer;
-
+                uint32_t balance = 0 ;
                 return_code = transfer_money(request.value.header.account_id,
                                              request.value.transfer.account_id,
-                                             request.value.transfer.amount, request.value.header.op_delay_ms, serverlog, number_office);
+                                             request.value.transfer.amount, request.value.header.op_delay_ms, serverlog, number_office, &balance);
                 create_header_struct_a(request.value.header.account_id, return_code, &header);
-
-                transfer.balance = accounts[request.value.header.account_id].balance;
+                create_transfer_struct_a(balance,&transfer);
                 t = join_structs_to_send_a(2, &header, NULL, &transfer, NULL);
 
                 break;
@@ -127,14 +126,18 @@ void *operations(void *nr)
                 uint32_t active;
                 rep_shutdown_t shutdown_str;
 
-                handle_shutdown(request.value.header.account_id, &shutdown, &active, request.value.header.op_delay_ms, serverlog, number_office);
+                return_code = handle_shutdown(request.value.header.account_id, &shutdown, &active, request.value.header.op_delay_ms, serverlog, number_office);
+                create_header_struct_a(request.value.header.account_id, return_code, &header);
                 create_shutdown_struct_a(active, &shutdown_str);
                 t = join_structs_to_send_a(3, &header, NULL, NULL, &shutdown_str);
 
+                if(request.value.header.account_id == 0)
+                {
                 for (int i = 0; i < nbr_balconies; i++)
                 {
                     sem_post(&full);
                     logSyncMechSem(serverlog, number_office, SYNC_OP_SEM_POST, SYNC_ROLE_CONSUMER, 0, get_sem_value(&full));
+                }
                 }
 
                 break;

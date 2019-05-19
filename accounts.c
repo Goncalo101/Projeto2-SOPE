@@ -53,7 +53,10 @@ ret_code_t create_account(char *password, uint32_t balance, uint32_t new_id, uin
     bank_account_t account;
 
     if (account_create_id != 0)
+    {
         return RC_OP_NALLOW;
+
+    }
 
     pthread_mutex_lock(&account_mutexes[new_id]);
     op_delay(delay, 0, fildes);
@@ -90,7 +93,7 @@ void unlock_mutex(uint32_t sender_id, uint32_t receiver_id, int fildes, int numb
         logSyncMech(fildes, number_office, SYNC_OP_MUTEX_UNLOCK, SYNC_ROLE_ACCOUNT, receiver_id);
 }
 
-ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t value, uint32_t delay, int fildes, int number_office)
+ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t value, uint32_t delay, int fildes, int number_office, uint32_t *balance)
 {
     // check if accounts are the same
     if (sender_id == receiver_id)
@@ -128,6 +131,7 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
 
     accounts[sender_id].balance -= value;
     accounts[receiver_id].balance += value;
+    *balance = accounts[sender_id].balance;
 
     unlock_mutex(sender_id, receiver_id, fildes, number_office);
 
@@ -202,8 +206,10 @@ ret_code_t handle_balance_request(uint32_t delay, uint32_t id, uint32_t *balance
 
 ret_code_t handle_shutdown(uint32_t id, uint32_t *shutdown, uint32_t *active_nbr, uint32_t delay, int fildes, int number_office)
 {
+    printf("sutdown id %d\n", id);
     if (id == 0)
     {
+        printf("oi\n");
         *shutdown = 1;
         pthread_mutex_lock(&active_thrds);
         logSyncMech(fildes, number_office, SYNC_OP_MUTEX_LOCK, SYNC_ROLE_ACCOUNT, 0);
