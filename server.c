@@ -96,9 +96,9 @@ void* operations(void* nr)
             {
                 rep_balance_t balance;
                 uint32_t balance_nbr = 0;
-
-                handle_balance_request(request.value.header.op_delay_ms,
+                return_code = handle_balance_request(request.value.header.op_delay_ms,
                     request.value.header.account_id, &balance_nbr, serverlog, number_office);
+                create_header_struct_a(request.value.header.account_id, return_code, &header);
                 create_balance_struct_a(balance_nbr, &balance);
                 t = join_structs_to_send_a(1, &header, &balance, NULL, NULL);
                 break;
