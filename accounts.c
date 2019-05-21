@@ -139,6 +139,7 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
     // check if sender's balance would be too low
     if (accounts[sender_id].balance < (MIN_BALANCE + value))
     {
+         *balance = accounts[sender_id].balance;
         unlock_mutex(sender_id, receiver_id, fildes, number_office);
         return RC_NO_FUNDS;
     }
