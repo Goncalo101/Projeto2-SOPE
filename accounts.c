@@ -106,10 +106,6 @@ void unlock_mutex(uint32_t sender_id, uint32_t receiver_id, int fildes, int numb
 ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t value, uint32_t delay, int fildes, int number_office, uint32_t *balance)
 {
     // check if accounts are the same
-    if (sender_id == receiver_id)
-    {
-        return RC_SAME_ID;
-    }
 
     if (sender_id < receiver_id)
     {
@@ -128,10 +124,17 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
         op_delay(delay, number_office, fildes);
     }
 
+    if (sender_id == receiver_id)
+    {
+        *balance = accounts[sender_id].balance;
+        unlock_mutex(sender_id, receiver_id, fildes, number_office);
+        return RC_SAME_ID;
+    }
     // check if either of the accounts doesn't exist (the sender has to exist so it might not be
     // necessary to check if the sender exists)
     if (account_ids[sender_id] == 0 || account_ids[receiver_id] == 0)
     {
+        *balance = accounts[sender_id].balance;
         unlock_mutex(sender_id, receiver_id, fildes, number_office);
         return RC_ID_NOT_FOUND;
     }
@@ -139,7 +142,7 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
     // check if sender's balance would be too low
     if (accounts[sender_id].balance < (MIN_BALANCE + value))
     {
-         *balance = accounts[sender_id].balance;
+        *balance = accounts[sender_id].balance;
         unlock_mutex(sender_id, receiver_id, fildes, number_office);
         return RC_NO_FUNDS;
     }
@@ -147,6 +150,7 @@ ret_code_t transfer_money(uint32_t sender_id, uint32_t receiver_id, uint32_t val
     // check if receiver's balance would be too high
     if (accounts[receiver_id].balance > (MAX_BALANCE - value))
     {
+        *balance = accounts[sender_id].balance;
         unlock_mutex(sender_id, receiver_id, fildes, number_office);
         return RC_TOO_HIGH;
     }
